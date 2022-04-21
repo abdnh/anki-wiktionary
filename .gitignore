@@ -1,0 +1,8 @@
+venv/
+ankiprofile/
+src/form.py
+src/dictionary/
+*.ankiaddon
+*.zip
+__pycache__/
+TODO.md

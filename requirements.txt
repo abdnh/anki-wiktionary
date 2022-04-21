@@ -1,0 +1,4 @@
+anki
+aqt
+pyqt5
+pyqt6
