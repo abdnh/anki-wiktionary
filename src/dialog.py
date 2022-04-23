@@ -142,9 +142,22 @@ class WiktionaryFetcherDialog(QDialog):
         word_field,
         field_tuples: Tuple[Tuple[int, Callable[[str], str]]],
     ):
+        want_cancel = False
         self.errors = []
         self.updated_notes = []
-        for note in self.notes:
+
+        def on_progress():
+            nonlocal want_cancel
+            want_cancel = self.mw.progress.want_cancel()
+            self.mw.progress.update(
+                label=PROGRESS_LABEL.format(
+                    count=len(self.updated_notes), total=len(self.notes)
+                ),
+                value=len(self.updated_notes),
+                max=len(self.notes),
+            )
+
+        for i, note in enumerate(self.notes):
             word = note[word_field]
             try:
                 need_updating = False
@@ -159,15 +172,10 @@ class WiktionaryFetcherDialog(QDialog):
             finally:
                 if need_updating:
                     self.updated_notes.append(note)
-                    self.mw.taskman.run_on_main(
-                        lambda: self.mw.progress.update(
-                            label=PROGRESS_LABEL.format(
-                                count=len(self.updated_notes), total=len(self.notes)
-                            ),
-                            value=len(self.updated_notes),
-                            max=len(self.notes),
-                        )
-                    )
+                if i % 50 == 0:
+                    self.mw.taskman.run_on_main(on_progress)
+                if want_cancel:
+                    break
         self.mw.taskman.run_on_main(lambda: self.mw.progress.finish())
 
     def _get_definitions(self, word: str) -> str:

@@ -22,7 +22,7 @@ class WiktionaryFetcher:
         cls,
         filename: str,
         dictionary: str,
-        on_progress: Callable[[int], None],
+        on_progress: Callable[[int], bool],
         on_error: Callable[[str, Exception], None],
     ) -> int:
         """Dumps a JSON file downloaded from https://kaikki.org/dictionary/{lang}/
@@ -45,7 +45,8 @@ class WiktionaryFetcher:
                 except Exception as exc:
                     on_error(word, exc)
                 if i % 50 == 0:
-                    on_progress(i + 1)
+                    if not on_progress(i + 1):
+                        break
         return count
 
     @functools.lru_cache

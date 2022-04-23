@@ -57,10 +57,16 @@ The imported dictionary will be made available for use in the add-on's main dial
             self.form.dictionaryNameLineEdit.setText(name_match.group(1))
 
     def on_add(self) -> None:
-        def on_progress(count: int):
-            self.mw.taskman.run_on_main(
-                lambda: self.mw.progress.update(f"Imported {count} words...")
-            )
+        want_cancel = False
+
+        def on_progress(count: int) -> bool:
+            def update():
+                self.mw.progress.update(f"Imported {count} words...")
+                nonlocal want_cancel
+                want_cancel = self.mw.progress.want_cancel()
+
+            self.mw.taskman.run_on_main(update)
+            return not want_cancel
 
         def on_error(word: str, exc: Exception) -> None:
             self.errors.append(f'failed to write file of word "{word}": {str(exc)}')
@@ -85,7 +91,10 @@ The imported dictionary will be made available for use in the add-on's main dial
         # TODO: handle exceptions
         self.mw.taskman.run_in_background(
             lambda: WiktionaryFetcher.dump_kaikki_dict(
-                filename, name, on_progress=on_progress, on_error=on_error
+                filename,
+                name,
+                on_progress=on_progress,
+                on_error=on_error,
             ),
             on_done=on_done,
         )
