@@ -51,7 +51,7 @@ The imported dictionary will be made available for use in the add-on's main dial
         qconnect(self.form.description.linkActivated, lambda link: openLink(link))
 
     def on_choose_file(self, filename: str) -> None:
-        self.form.filenameLineEdit.setText(filename)
+        self.form.filenameLabel.setText(filename)
         name_match = re.search(r"kaikki.org-dictionary-(.*?)\.", filename)
         if name_match:
             self.form.dictionaryNameLineEdit.setText(name_match.group(1))
@@ -81,7 +81,7 @@ The imported dictionary will be made available for use in the add-on's main dial
             tooltip(f"Successfully imported {count} words", parent=self.mw)
             self.accept()
 
-        filename = self.form.filenameLineEdit.text()
+        filename = self.form.filenameLabel.text()
         name = self.form.dictionaryNameLineEdit.text().strip()
         if not name or not filename:
             showWarning("Filename and dictionary name fields cannot be empty")
