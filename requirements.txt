@@ -2,3 +2,5 @@ anki
 aqt
 pyqt5
 pyqt6
+mypy
+black
