@@ -1,3 +1,5 @@
+<center><img src="shot.png" width="600"></center>
+
 Anki add-on to query words using Wiktionary data taken from https://kaikki.org
 
 ## How to use
