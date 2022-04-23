@@ -1,6 +1,6 @@
-import os
+from pathlib import Path
 
 ADDON_NAME = "Wiktionary"
-ADDON_DIR = os.path.dirname(__file__)
-ICONS_DIR = os.path.join(ADDON_DIR, "icons")
-USER_FILES = os.path.join(ADDON_DIR, "user_files")
+ADDON_DIR = Path(__file__).resolve().parent
+ICONS_DIR = ADDON_DIR / "icons"
+USER_FILES = ADDON_DIR / "user_files"

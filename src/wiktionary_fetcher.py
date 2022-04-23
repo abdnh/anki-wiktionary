@@ -1,8 +1,6 @@
-import os
-import sys
 import json
 import functools
-from typing import List, Dict
+from typing import Callable, List, Dict
 
 from . import consts
 
@@ -16,32 +14,44 @@ class WordNotFoundError(WiktionaryError):
 
 
 class WiktionaryFetcher:
-    DICT_DIR = os.path.join(consts.USER_FILES, "dictionary")
+    def __init__(self, dictionary: str):
+        self.dict_dir = consts.USER_FILES / dictionary
 
     @classmethod
-    def dump_kaikki_dict(cls, filename):
-        """Dumps a JSON file downloaded from https://kaikki.org/dictionary/{lang}/ to a separate file for each entry in 'dictionary'"""
+    def dump_kaikki_dict(
+        cls,
+        filename: str,
+        dictionary: str,
+        on_progress: Callable[[int], None],
+        on_error: Callable[[str, Exception], None],
+    ) -> int:
+        """Dumps a JSON file downloaded from https://kaikki.org/dictionary/{lang}/
+        to separate files for each entry in 'dictionary'"""
+        outdir = consts.USER_FILES / dictionary
+        outdir.mkdir(exist_ok=True)
+        count = 0
         with open(filename, encoding="utf-8") as f:
-            for line in f:
+            for i, line in enumerate(f):
                 entry = json.loads(line)
                 word = entry["word"]
                 try:
                     with open(
-                        os.path.join(cls.DICT_DIR, f"{word}.json"),
+                        outdir / f"{word}.json",
                         mode="w",
                         encoding="utf-8",
                     ) as outfile:
                         outfile.write(line)
-                except FileNotFoundError:
-                    # ignore words with characters not allowed in filenames
-                    print(f'failed to write file of word "{word}"', file=sys.stderr)
+                        count += 1
+                except Exception as exc:
+                    on_error(word, exc)
+                if i % 50 == 0:
+                    on_progress(i + 1)
+        return count
 
     @functools.lru_cache
     def _get_word_json(self, word: str) -> Dict:
         try:
-            with open(
-                os.path.join(self.DICT_DIR, f"{word}.json"), encoding="utf-8"
-            ) as f:
+            with open(self.dict_dir / f"{word}.json", encoding="utf-8") as f:
                 return json.load(f)
         except FileNotFoundError as exc:
             raise WordNotFoundError(
@@ -80,8 +90,7 @@ class WiktionaryFetcher:
 
 
 if __name__ == "__main__":
-    dictionary = WiktionaryFetcher()
-    # WiktionaryFetcher.dump_kaikki_dict('kaikki.org-dictionary-Russian.json')
+    dictionary = WiktionaryFetcher("Russian")
     words = ["кошка"]
     for word in words:
         print(dictionary.get_senses(word))

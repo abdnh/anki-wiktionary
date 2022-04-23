@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from aqt.qt import *
 from aqt import qtmajor
@@ -12,10 +12,15 @@ if qtmajor > 5:
 else:
     from .form_qt5 import Ui_Dialog
 
-from .consts import *
+# from .consts import *
+from . import consts
 from .wiktionary_fetcher import WiktionaryFetcher, WordNotFoundError
 
 PROGRESS_LABEL = "Updated {count} out of {total} note(s)"
+
+
+def get_available_dicts() -> List[str]:
+    return [p.name for p in consts.USER_FILES.iterdir() if p.is_dir()]
 
 
 class WiktionaryFetcherDialog(QDialog):
@@ -23,15 +28,12 @@ class WiktionaryFetcherDialog(QDialog):
         self,
         mw: AnkiQt,
         parent,
-        downloader: WiktionaryFetcher,
         notes: List[Note],
     ):
         super().__init__(parent)
         self.form = Ui_Dialog()
         self.form.setupUi(self)
         self.mw = mw
-        self.downloader = downloader
-        self.config = mw.addonManager.getConfig(__name__)
         self.notes = notes
         self.combos = [
             self.form.wordFieldComboBox,
@@ -40,10 +42,12 @@ class WiktionaryFetcherDialog(QDialog):
             self.form.genderFieldComboBox,
             self.form.POSFieldComboBox,
         ]
-        self.setWindowTitle(ADDON_NAME)
+        self.setWindowTitle(consts.ADDON_NAME)
         self.form.icon.setPixmap(
-            QPixmap(os.path.join(ICONS_DIR, "enwiktionary-1.5x.png"))
+            QPixmap(os.path.join(consts.ICONS_DIR, "enwiktionary-1.5x.png"))
         )
+        self.form.dictionaryComboBox.addItems(get_available_dicts())
+        self.downloader: Optional[WiktionaryFetcher] = None
         qconnect(self.form.addButton.clicked, self.on_add)
 
     def exec(self) -> int:
@@ -58,7 +62,7 @@ class WiktionaryFetcherDialog(QDialog):
             showWarning(
                 "Please select notes from only one notetype.",
                 parent=self,
-                title=ADDON_NAME,
+                title=consts.ADDON_NAME,
             )
             return 0
         self.field_names = ["None"] + self.notes[0].keys()
@@ -83,19 +87,18 @@ class WiktionaryFetcherDialog(QDialog):
             if i != combo_index and combo.currentIndex() == field_index:
                 combo.setCurrentIndex(0)
 
-    def on_number_of_defs_changed(self, value: int):
-        self.config["number_of_definitions"] = value
-        self.mw.addonManager.writeConfig(__name__, self.config)
-
-    def on_number_of_examples_changed(self, value: int):
-        self.config["number_of_examples"] = value
-        self.mw.addonManager.writeConfig(__name__, self.config)
-
     def on_add(self):
         if self.form.wordFieldComboBox.currentIndex() == 0:
-            showWarning("No word field selected.", parent=self, title=ADDON_NAME)
+            showWarning("No word field selected.", parent=self, title=consts.ADDON_NAME)
             return
-
+        if self.form.dictionaryComboBox.currentIndex() == -1:
+            showWarning(
+                "No dictionary is available. Please use <b>Tools > Wiktionary > Import a dictionary</b>.",
+                textFormat="rich",
+            )
+            return
+        dictionary = self.form.dictionaryComboBox.currentText()
+        self.downloader = WiktionaryFetcher(dictionary)
         word_field = self.form.wordFieldComboBox.currentText()
         definition_field_i = self.form.definitionFieldComboBox.currentIndex()
         example_field_i = self.form.exampleFieldComboBox.currentIndex()
@@ -113,7 +116,7 @@ class WiktionaryFetcherDialog(QDialog):
 
         def on_failure(exc):
             self.mw.progress.finish()
-            showWarning(str(exc), parent=self, title=ADDON_NAME)
+            showWarning(str(exc), parent=self, title=consts.ADDON_NAME)
             self.accept()
 
         op = QueryOp(
@@ -132,9 +135,13 @@ class WiktionaryFetcherDialog(QDialog):
             parent=self,
             immediate=True,
         )
-        self.mw.progress.set_title(ADDON_NAME)
+        self.mw.progress.set_title(consts.ADDON_NAME)
 
-    def _fill_notes(self, word_field, field_tuples: Tuple[int, Callable[[str], str]]):
+    def _fill_notes(
+        self,
+        word_field,
+        field_tuples: Tuple[Tuple[int, Callable[[str], str]]],
+    ):
         self.errors = []
         self.updated_notes = []
         for note in self.notes:
