@@ -40,7 +40,7 @@ format:
 	python -m black src/
 
 check:
-	python -m mypy src/
+	python -m mypy .
 
 clean:
 	rm -f $(PACKAGE_NAME).ankiaddon

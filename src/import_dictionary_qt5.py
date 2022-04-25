@@ -19,7 +19,9 @@ class Ui_Dialog(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.description = QtWidgets.QLabel(Dialog)
         self.description.setTextFormat(QtCore.Qt.RichText)
-        self.description.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextSelectableByMouse)
+        self.description.setTextInteractionFlags(
+            QtCore.Qt.LinksAccessibleByMouse | QtCore.Qt.TextSelectableByMouse
+        )
         self.description.setObjectName("description")
         self.verticalLayout.addWidget(self.description)
         self.widget = QtWidgets.QWidget(Dialog)
@@ -31,21 +33,29 @@ class Ui_Dialog(object):
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label)
         self.chooseFileButton = QtWidgets.QPushButton(self.widget)
         self.chooseFileButton.setObjectName("chooseFileButton")
-        self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.chooseFileButton)
+        self.formLayout.setWidget(
+            0, QtWidgets.QFormLayout.FieldRole, self.chooseFileButton
+        )
         self.label_2 = QtWidgets.QLabel(self.widget)
         self.label_2.setObjectName("label_2")
         self.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_2)
         self.dictionaryNameLineEdit = QtWidgets.QLineEdit(self.widget)
         self.dictionaryNameLineEdit.setObjectName("dictionaryNameLineEdit")
-        self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.dictionaryNameLineEdit)
+        self.formLayout.setWidget(
+            2, QtWidgets.QFormLayout.FieldRole, self.dictionaryNameLineEdit
+        )
         self.addButton = QtWidgets.QPushButton(self.widget)
         self.addButton.setObjectName("addButton")
         self.formLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.addButton)
         self.filenameLabel = QtWidgets.QLabel(self.widget)
         self.filenameLabel.setText("")
-        self.filenameLabel.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextSelectableByMouse)
+        self.filenameLabel.setTextInteractionFlags(
+            QtCore.Qt.LinksAccessibleByMouse | QtCore.Qt.TextSelectableByMouse
+        )
         self.filenameLabel.setObjectName("filenameLabel")
-        self.formLayout.setWidget(1, QtWidgets.QFormLayout.SpanningRole, self.filenameLabel)
+        self.formLayout.setWidget(
+            1, QtWidgets.QFormLayout.SpanningRole, self.filenameLabel
+        )
         self.verticalLayout.addWidget(self.widget)
 
         self.retranslateUi(Dialog)

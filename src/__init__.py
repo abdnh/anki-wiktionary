@@ -4,7 +4,6 @@ from aqt.gui_hooks import (
     browser_menus_did_init,
     editor_did_init_buttons,
 )
-import aqt
 from aqt import mw
 from aqt.qt import *
 from aqt.browser.browser import Browser
@@ -46,7 +45,7 @@ def on_browser_action_triggered(browser: Browser) -> None:
 
 
 def on_browser_menus_did_init(browser: Browser) -> None:
-    config = aqt.mw.addonManager.getConfig(__name__)
+    config = mw.addonManager.getConfig(__name__)
     shortcut = config["browser_shortcut"]
     a = QAction("Bulk-define from Wiktionary", browser)
     a.setShortcut(shortcut)
@@ -68,7 +67,7 @@ def on_editor_button_clicked(editor: Editor) -> None:
 
 
 def on_editor_did_init_buttons(buttons: List[str], editor: Editor) -> None:
-    config = aqt.mw.addonManager.getConfig(__name__)
+    config = mw.addonManager.getConfig(__name__)
     shortcut = config["editor_shortcut"]
     button = editor.addButton(
         icon=os.path.join(consts.ICONS_DIR, "en.ico"),

@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, cast
 
 from aqt.qt import *
 from aqt import qtmajor
@@ -10,7 +10,7 @@ from aqt.operations import QueryOp
 if qtmajor > 5:
     from .form_qt6 import Ui_Dialog
 else:
-    from .form_qt5 import Ui_Dialog
+    from .form_qt5 import Ui_Dialog  # type: ignore
 
 # from .consts import *
 from . import consts
@@ -140,11 +140,11 @@ class WiktionaryFetcherDialog(QDialog):
     def _fill_notes(
         self,
         word_field,
-        field_tuples: Tuple[Tuple[int, Callable[[str], str]]],
+        field_tuples: Tuple[Tuple[int, Callable[[str], str]], ...],
     ):
         want_cancel = False
         self.errors = []
-        self.updated_notes = []
+        self.updated_notes: List[Note] = []
 
         def on_progress():
             nonlocal want_cancel
@@ -180,20 +180,24 @@ class WiktionaryFetcherDialog(QDialog):
 
     def _get_definitions(self, word: str) -> str:
         field_contents = []
-        defs = self.downloader.get_senses(word)
+        downloader = cast(WiktionaryFetcher, self.downloader)
+        defs = downloader.get_senses(word)
         for i, definition in enumerate(defs):
             field_contents.append(f"{i}. {definition}")
         return "<br>".join(field_contents)
 
     def _get_examples(self, word: str) -> str:
         field_contents = []
-        examples = self.downloader.get_examples(word)
+        downloader = cast(WiktionaryFetcher, self.downloader)
+        examples = downloader.get_examples(word)
         for example in examples:
             field_contents.append(example)
         return "<br>".join(field_contents)
 
     def _get_gender(self, word: str) -> str:
-        return self.downloader.get_gender(word)
+        downloader = cast(WiktionaryFetcher, self.downloader)
+        return downloader.get_gender(word)
 
     def _get_part_of_speech(self, word: str) -> str:
-        return self.downloader.get_part_of_speech(word)
+        downloader = cast(WiktionaryFetcher, self.downloader)
+        return downloader.get_part_of_speech(word)

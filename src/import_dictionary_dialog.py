@@ -11,7 +11,7 @@ from aqt.utils import showWarning, getFile, tooltip, openLink
 if qtmajor > 5:
     from .import_dictionary_qt6 import Ui_Dialog
 else:
-    from .import_dictionary_qt5 import Ui_Dialog
+    from .import_dictionary_qt5 import Ui_Dialog  # type: ignore
 
 from . import consts
 from .wiktionary_fetcher import WiktionaryFetcher
@@ -32,12 +32,7 @@ class ImportDictionaryDialog(QDialog):
     def setup_ui(self) -> None:
         qconnect(
             self.form.chooseFileButton.clicked,
-            lambda: getFile(
-                self,
-                title=consts.ADDON_NAME,
-                cb=self.on_choose_file,
-                key=consts.ADDON_NAME,
-            ),
+            self.on_choose_file,
         )
         qconnect(self.form.addButton.clicked, self.on_add)
         self.form.description.setText(
@@ -50,7 +45,16 @@ The imported dictionary will be made available for use in the add-on's main dial
         )
         qconnect(self.form.description.linkActivated, lambda link: openLink(link))
 
-    def on_choose_file(self, filename: str) -> None:
+    def on_choose_file(self) -> None:
+        filename = getFile(
+            self,
+            title=consts.ADDON_NAME,
+            cb=None,
+            key=consts.ADDON_NAME,
+        )
+        if not filename:
+            return
+        filename = str(filename)
         self.form.filenameLabel.setText(filename)
         name_match = re.search(r"kaikki.org-dictionary-(.*?)\.", filename)
         if name_match:
