@@ -8,9 +8,9 @@ from anki.notes import Note
 from aqt.operations import QueryOp
 
 if qtmajor > 5:
-    from .form_qt6 import Ui_Dialog
+    from .forms.form_qt6 import Ui_Dialog
 else:
-    from .form_qt5 import Ui_Dialog  # type: ignore
+    from .forms.form_qt5 import Ui_Dialog  # type: ignore
 
 # from .consts import *
 from . import consts

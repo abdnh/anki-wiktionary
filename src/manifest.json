@@ -1,4 +1,1 @@
-{
-    "name": "Wiktionary",
-    "package": "wiktionary"
-}
+{"name": "Wiktionary", "homepage": "https://github.com/abdnh/anki-wiktionary", "package": "wiktionary", "conflicts": []}

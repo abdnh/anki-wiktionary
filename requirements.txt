@@ -4,3 +4,5 @@ pyqt5
 pyqt6
 mypy
 black
+ankibuild
+git+https://github.com/abdnh/ankibuild#egg=ankibuild[qt5,qt6]

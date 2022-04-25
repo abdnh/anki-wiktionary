@@ -9,9 +9,9 @@ from aqt.utils import showWarning, getFile, tooltip, openLink
 
 
 if qtmajor > 5:
-    from .import_dictionary_qt6 import Ui_Dialog
+    from .forms.import_dictionary_qt6 import Ui_Dialog
 else:
-    from .import_dictionary_qt5 import Ui_Dialog  # type: ignore
+    from .forms.import_dictionary_qt5 import Ui_Dialog  # type: ignore
 
 from . import consts
 from .wiktionary_fetcher import WiktionaryFetcher
