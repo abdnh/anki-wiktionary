@@ -1,6 +1,6 @@
 SHELL := /bin/bash -O extglob
 
-.PHONY: all forms zip clean format check prebuild install
+.PHONY: all zip clean check check_format fix mypy pylint ankiweb run
 
 all: zip
 
@@ -13,11 +13,21 @@ ankiweb:
 run: zip
 	python -m ankirun
 
-format:
-	python -m black src/ --exclude="forms"
+check: check_format mypy pylint
 
-check:
+check_format:
+	python -m black --exclude=forms --check --diff --color src
+	python -m isort --check src
+
+fix:
+	python -m black --exclude=forms src
+	python -m isort src
+
+mypy:
 	python -m mypy src
 
+pylint:
+	python -m pylint src
+
 clean:
-	rm -f $(PACKAGE_NAME).ankiaddon
+	rm -rf build/

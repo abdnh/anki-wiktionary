@@ -1,15 +1,12 @@
 from typing import List
 
-from aqt.gui_hooks import (
-    browser_menus_did_init,
-    editor_did_init_buttons,
-)
 from aqt import mw
-from aqt.qt import *
 from aqt.browser.browser import Browser
 from aqt.editor import Editor
-from aqt.utils import showText, tooltip, showWarning
+from aqt.gui_hooks import browser_menus_did_init, editor_did_init_buttons
 from aqt.operations import CollectionOp
+from aqt.qt import *
+from aqt.utils import showText, showWarning, tooltip
 
 from . import consts
 from .dialog import WiktionaryFetcherDialog
@@ -47,11 +44,11 @@ def on_browser_action_triggered(browser: Browser) -> None:
 def on_browser_menus_did_init(browser: Browser) -> None:
     config = mw.addonManager.getConfig(__name__)
     shortcut = config["browser_shortcut"]
-    a = QAction("Bulk-define from Wiktionary", browser)
-    a.setShortcut(shortcut)
-    qconnect(a.triggered, lambda: on_browser_action_triggered(browser))
+    action = QAction("Bulk-define from Wiktionary", browser)
+    action.setShortcut(shortcut)
+    qconnect(action.triggered, lambda: on_browser_action_triggered(browser))
     browser.form.menuEdit.addSeparator()
-    browser.form.menuEdit.addAction(a)
+    browser.form.menuEdit.addAction(action)
 
 
 def on_editor_button_clicked(editor: Editor) -> None:

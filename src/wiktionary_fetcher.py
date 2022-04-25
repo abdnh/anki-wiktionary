@@ -1,6 +1,7 @@
-import json
 import functools
-from typing import Callable, List, Dict
+import json
+from pathlib import Path
+from typing import Callable, Dict, List
 
 from . import consts
 
@@ -30,8 +31,8 @@ class WiktionaryFetcher:
         outdir = consts.USER_FILES / dictionary
         outdir.mkdir(exist_ok=True)
         count = 0
-        with open(filename, encoding="utf-8") as f:
-            for i, line in enumerate(f):
+        with open(filename, encoding="utf-8") as file:
+            for i, line in enumerate(file):
                 entry = json.loads(line)
                 word = entry["word"]
                 try:
@@ -49,22 +50,26 @@ class WiktionaryFetcher:
                         break
         return count
 
+    @staticmethod
     @functools.lru_cache
-    def _get_word_json(self, word: str) -> Dict:
+    def _get_word_json(dict_dir: Path, word: str) -> Dict:
         try:
-            with open(self.dict_dir / f"{word}.json", encoding="utf-8") as f:
-                return json.load(f)
+            with open(dict_dir / f"{word}.json", encoding="utf-8") as file:
+                return json.load(file)
         except FileNotFoundError as exc:
             raise WordNotFoundError(
                 f'"{word}" was not found in the dictionary.'
             ) from exc
 
+    def get_word_json(self, word: str) -> Dict:
+        return self._get_word_json(self.dict_dir, word)
+
     def get_senses(self, word: str) -> List[str]:
-        data = self._get_word_json(word)
+        data = self.get_word_json(word)
         return ["\n".join(d.get("raw_glosses", [])) for d in data.get("senses", [])]
 
     def get_examples(self, word: str) -> List[str]:
-        data = self._get_word_json(word)
+        data = self.get_word_json(word)
         examples = []
         for sense in data.get("senses", []):
             for example in sense.get("examples", []):
@@ -76,7 +81,7 @@ class WiktionaryFetcher:
 
     def get_gender(self, word: str) -> str:
         genders = {"feminine", "masculine", "neuter"}
-        data = self._get_word_json(word)
+        data = self.get_word_json(word)
         forms = data.get("forms", [])
         # FIXME: do we need to return the form too along with the gender? and can different forms have different genders?
         for form in forms:
@@ -86,7 +91,7 @@ class WiktionaryFetcher:
         return ""
 
     def get_part_of_speech(self, word: str) -> str:
-        data = self._get_word_json(word)
+        data = self.get_word_json(word)
         return data.get("pos", "")
 
 

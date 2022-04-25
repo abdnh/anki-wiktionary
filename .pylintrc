@@ -1,0 +1,26 @@
+[MASTER]
+ignore=forms
+extension-pkg-whitelist=PyQt6,PyQt5
+
+[REPORTS]
+output-format=colorized
+
+[MESSAGES CONTROL]
+disable=
+  line-too-long,
+  missing-function-docstring,
+  missing-module-docstring,
+  missing-class-docstring,
+  redefined-outer-name,
+  unused-argument,
+  broad-except,
+  bare-except,
+  attribute-defined-outside-init,
+  too-many-instance-attributes
+
+[BASIC]
+good-names =
+  i,
+  mw,
+  op,
+  db

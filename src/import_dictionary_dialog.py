@@ -1,20 +1,19 @@
-from concurrent.futures import Future
 import re
+from concurrent.futures import Future
 from typing import List
 
-from aqt.qt import *
 from aqt import qtmajor
 from aqt.main import AnkiQt
-from aqt.utils import showWarning, getFile, tooltip, openLink
+from aqt.qt import QDialog, qconnect
+from aqt.utils import getFile, openLink, showWarning, tooltip
 
+from . import consts
+from .wiktionary_fetcher import WiktionaryFetcher
 
 if qtmajor > 5:
     from .forms.import_dictionary_qt6 import Ui_Dialog
 else:
     from .forms.import_dictionary_qt5 import Ui_Dialog  # type: ignore
-
-from . import consts
-from .wiktionary_fetcher import WiktionaryFetcher
 
 
 class ImportDictionaryDialog(QDialog):
@@ -43,7 +42,10 @@ at the bottom of the page to download a JSON file (which has a name like "kaikki
 containing all word senses that you can import to Anki here.<br>
 The imported dictionary will be made available for use in the add-on's main dialog."""
         )
-        qconnect(self.form.description.linkActivated, lambda link: openLink(link))
+        qconnect(
+            self.form.description.linkActivated,
+            lambda link: openLink(link),  # pylint: disable=unnecessary-lambda
+        )
 
     def on_choose_file(self) -> None:
         filename = getFile(

@@ -1,20 +1,21 @@
-from typing import List, Optional, Tuple, cast
+import os
+from typing import Callable, List, Optional, Tuple, cast
 
-from aqt.qt import *
+from anki.notes import Note
 from aqt import qtmajor
 from aqt.main import AnkiQt
-from aqt.utils import showWarning
-from anki.notes import Note
 from aqt.operations import QueryOp
+from aqt.qt import QDialog, QPixmap, qconnect
+from aqt.utils import showWarning
+
+from . import consts
+from .wiktionary_fetcher import WiktionaryFetcher, WordNotFoundError
 
 if qtmajor > 5:
     from .forms.form_qt6 import Ui_Dialog
 else:
     from .forms.form_qt5 import Ui_Dialog  # type: ignore
 
-# from .consts import *
-from . import consts
-from .wiktionary_fetcher import WiktionaryFetcher, WordNotFoundError
 
 PROGRESS_LABEL = "Updated {count} out of {total} note(s)"
 
@@ -53,8 +54,7 @@ class WiktionaryFetcherDialog(QDialog):
     def exec(self) -> int:
         if self._fill_fields():
             return super().exec()
-        else:
-            return QDialog.DialogCode.Rejected
+        return QDialog.DialogCode.Rejected  # pylint: disable=no-member
 
     def _fill_fields(self) -> int:
         mids = set(note.mid for note in self.notes)
@@ -159,8 +159,8 @@ class WiktionaryFetcherDialog(QDialog):
 
         for i, note in enumerate(self.notes):
             word = note[word_field]
+            need_updating = False
             try:
-                need_updating = False
                 for field_tuple in field_tuples:
                     if not field_tuple[0]:
                         continue
@@ -174,9 +174,9 @@ class WiktionaryFetcherDialog(QDialog):
                     self.updated_notes.append(note)
                 if i % 50 == 0:
                     self.mw.taskman.run_on_main(on_progress)
-                if want_cancel:
-                    break
-        self.mw.taskman.run_on_main(lambda: self.mw.progress.finish())
+            if want_cancel:
+                break
+        self.mw.taskman.run_on_main(self.mw.progress.finish)
 
     def _get_definitions(self, word: str) -> str:
         field_contents = []
