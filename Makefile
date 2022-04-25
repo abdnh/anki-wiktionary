@@ -17,7 +17,7 @@ format:
 	python -m black src/ --exclude="forms"
 
 check:
-	python -m mypy .
+	python -m mypy src
 
 clean:
 	rm -f $(PACKAGE_NAME).ankiaddon
