@@ -14,7 +14,7 @@ run: zip
 	python -m ankirun
 
 format:
-	python -m black src/
+	python -m black src/ --exclude="forms"
 
 check:
 	python -m mypy .
