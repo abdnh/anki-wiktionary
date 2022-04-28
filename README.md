@@ -8,12 +8,15 @@ item in the browser for bulk operations on selected notes. You can also configur
 
 <img src="./images/dialog.png" width="600">
 
-
 You have to download the dictionary data you want for the add-on to work.
 For that, find your target language in https://kaikki.org/dictionary/ and download the JSON file containing all data listed at the bottom of the language page (which has a name like "kaikki.org-dictionary-Russian.json").
 Then in Anki, go to **Tools > Wiktionary -> Import a dictionary** to import the dictionary.
 
 <img src="./images/import_dialog.png" width="600">
+
+## Download
+
+You can download the add-on from its AnkiWeb page: https://ankiweb.net/shared/info/2087444887
 
 ## TODO
 
