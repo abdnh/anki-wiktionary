@@ -1,5 +1,6 @@
 {
     "name": "Wiktionary",
     "package": "wiktionary",
-    "homepage": "https://github.com/abdnh/anki-wiktionary"
+    "homepage": "https://github.com/abdnh/anki-wiktionary",
+    "ankiweb_id": "2087444887"
 }
