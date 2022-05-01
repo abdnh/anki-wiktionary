@@ -1,11 +1,11 @@
 import os
-from typing import Callable, List, Optional, Tuple, cast
+from typing import Any, Callable, List, Optional, Tuple, cast
 
 from anki.notes import Note
 from aqt import qtmajor
 from aqt.main import AnkiQt
 from aqt.operations import QueryOp
-from aqt.qt import QDialog, QPixmap, qconnect
+from aqt.qt import QDialog, QPixmap, QWidget, qconnect
 from aqt.utils import showWarning
 
 from . import consts
@@ -28,7 +28,7 @@ class WiktionaryFetcherDialog(QDialog):
     def __init__(
         self,
         mw: AnkiQt,
-        parent,
+        parent: QWidget,
         notes: List[Note],
     ):
         super().__init__(parent)
@@ -80,14 +80,14 @@ class WiktionaryFetcherDialog(QDialog):
             )
         return 1
 
-    def on_selected_field_changed(self, combo_index, field_index):
+    def on_selected_field_changed(self, combo_index: int, field_index: int) -> None:
         if field_index == 0:
             return
         for i, combo in enumerate(self.combos):
             if i != combo_index and combo.currentIndex() == field_index:
                 combo.setCurrentIndex(0)
 
-    def on_add(self):
+    def on_add(self) -> None:
         if self.form.wordFieldComboBox.currentIndex() == 0:
             showWarning("No word field selected.", parent=self, title=consts.ADDON_NAME)
             return
@@ -111,10 +111,10 @@ class WiktionaryFetcherDialog(QDialog):
             (pos_field_i, self._get_part_of_speech),
         )
 
-        def on_success(ret):
+        def on_success(ret: Any) -> None:
             self.accept()
 
-        def on_failure(exc):
+        def on_failure(exc: Exception) -> None:
             self.mw.progress.finish()
             showWarning(str(exc), parent=self, title=consts.ADDON_NAME)
             self.accept()
@@ -139,14 +139,14 @@ class WiktionaryFetcherDialog(QDialog):
 
     def _fill_notes(
         self,
-        word_field,
+        word_field: str,
         field_tuples: Tuple[Tuple[int, Callable[[str], str]], ...],
-    ):
+    ) -> None:
         want_cancel = False
         self.errors = []
         self.updated_notes: List[Note] = []
 
-        def on_progress():
+        def on_progress() -> None:
             nonlocal want_cancel
             want_cancel = self.mw.progress.want_cancel()
             self.mw.progress.update(

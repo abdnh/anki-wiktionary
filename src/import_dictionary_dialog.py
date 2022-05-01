@@ -66,7 +66,7 @@ The imported dictionary will be made available for use in the add-on's main dial
         want_cancel = False
 
         def on_progress(count: int) -> bool:
-            def update():
+            def update() -> None:
                 self.mw.progress.update(f"Imported {count} words...")
                 nonlocal want_cancel
                 want_cancel = self.mw.progress.want_cancel()
