@@ -17,7 +17,7 @@ check: check_format mypy pylint
 
 check_format:
 	python -m black --exclude=forms --check --diff --color src
-	python -m isort --check src
+	python -m isort --check --diff --color src
 
 fix:
 	python -m black --exclude=forms src
