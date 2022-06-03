@@ -1,7 +1,7 @@
 import functools
 import json
 from pathlib import Path
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Union
 
 from . import consts
 
@@ -21,7 +21,7 @@ class WiktionaryFetcher:
     @classmethod
     def dump_kaikki_dict(
         cls,
-        filename: str,
+        filename: Union[str, Path],
         dictionary: str,
         on_progress: Callable[[int], bool],
         on_error: Callable[[str, Exception], None],

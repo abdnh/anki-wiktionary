@@ -16,7 +16,11 @@ disable=
   broad-except,
   bare-except,
   attribute-defined-outside-init,
-  too-many-instance-attributes
+  too-many-instance-attributes,
+  wildcard-import,
+  unused-wildcard-import,
+  too-many-arguments,
+  fixme,
 
 [BASIC]
 good-names =

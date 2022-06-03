@@ -1,35 +1,35 @@
-import tempfile
-from pathlib import Path
-from typing import Any, Callable, List
-import unittest
-from unittest.mock import patch
 import builtins
+import tempfile
+import unittest
+from pathlib import Path
+from typing import Any, Callable, List, Union
+from unittest.mock import patch
 
 from src.wiktionary_fetcher import WiktionaryFetcher
 
 
-def mock_open(file, *args, **kwargs):
+def mock_open(file: Union[str, Path], *args: Any, **kwargs: Any) -> Any:
     # Make importing artifically fail for a certain file
-    if file.name == "FAIL.json":
+    if file == "FAIL.json" or getattr(file, "name", "") == "FAIL.json":
         raise Exception("FAIL")
-    return builtins.open(file, *args, **kwargs)
+    return builtins.open(file, *args, **kwargs)  # pylint: disable=unspecified-encoding
 
 
 class TestWiktionaryFetcher(unittest.TestCase):
     DICT_NAME = "dict"
 
-    def test_importing(self):
+    def test_importing(self) -> None:
         patcher = patch("src.wiktionary_fetcher.open", side_effect=mock_open)
         patcher.start()
         failed_words = []
 
-        def on_error(word, exc):
+        def on_error(word: str, exc: Exception) -> None:
             assert str(exc) == "FAIL"
             failed_words.append(word)
 
         tests_dir = Path(__file__).parent
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            tmp_dir = Path(tmp_dir)
+        with tempfile.TemporaryDirectory() as tmp_dir_s:
+            tmp_dir = Path(tmp_dir_s)
             count = WiktionaryFetcher.dump_kaikki_dict(
                 tests_dir / "test_dict.json",
                 self.DICT_NAME,

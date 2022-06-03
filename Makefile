@@ -16,18 +16,18 @@ run: zip
 check: check_format mypy pylint
 
 check_format:
-	python -m black --exclude=forms --check --diff --color src
-	python -m isort --check --diff --color src
+	python -m black --exclude=forms --check --diff --color src tests
+	python -m isort --check --diff --color src tests
 
 fix:
-	python -m black --exclude=forms src
-	python -m isort src
+	python -m black --exclude=forms src tests
+	python -m isort src tests
 
 mypy:
-	python -m mypy src
+	python -m mypy src tests
 
 pylint:
-	python -m pylint src
+	python -m pylint src tests
 
 test:
 	python -m unittest
