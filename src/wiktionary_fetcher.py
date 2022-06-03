@@ -15,8 +15,8 @@ class WordNotFoundError(WiktionaryError):
 
 
 class WiktionaryFetcher:
-    def __init__(self, dictionary: str):
-        self.dict_dir = consts.USER_FILES / dictionary
+    def __init__(self, dictionary: str, base_dir: Path = consts.USER_FILES):
+        self.dict_dir = base_dir / dictionary
 
     @classmethod
     def dump_kaikki_dict(
@@ -25,10 +25,11 @@ class WiktionaryFetcher:
         dictionary: str,
         on_progress: Callable[[int], bool],
         on_error: Callable[[str, Exception], None],
+        base_dir: Path = consts.USER_FILES,
     ) -> int:
         """Dumps a JSON file downloaded from https://kaikki.org/dictionary/{lang}/
         to separate files for each entry in 'dictionary'"""
-        outdir = consts.USER_FILES / dictionary
+        outdir = base_dir / dictionary
         outdir.mkdir(exist_ok=True)
         count = 0
         with open(filename, encoding="utf-8") as file:

@@ -1,6 +1,6 @@
 SHELL := /bin/bash -O extglob
 
-.PHONY: all zip clean check check_format fix mypy pylint ankiweb run
+.PHONY: all zip clean check check_format fix mypy pylint ankiweb run test
 
 all: zip
 
@@ -28,6 +28,9 @@ mypy:
 
 pylint:
 	python -m pylint src
+
+test:
+	python -m unittest
 
 clean:
 	rm -rf build/
