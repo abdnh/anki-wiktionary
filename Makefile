@@ -1,5 +1,3 @@
-SHELL := /bin/bash -O extglob
-
 .PHONY: all zip clean check check_format fix mypy pylint ankiweb run test
 
 all: zip
