@@ -25,3 +25,13 @@ You can download the add-on from its AnkiWeb page: https://ankiweb.net/shared/in
 ## Credit
 
 The icons are taken from https://en.wiktionary.org/
+
+## Support me
+
+Consider supporting me on Ko-fi or Patreon if you like my add-ons:
+
+<a href='https://ko-fi.com/U7U8AE997'><img height='36' src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a> <a href="https://www.patreon.com/abdnh"><img height='36' src="https://i.imgur.com/mZBGpZ1.png"></a>
+
+I'm also available for freelance add-on development at Fiverr:
+
+<a href="https://www.fiverr.com/abd_nh/develop-an-anki-addon"><img height='36' src="https://i.imgur.com/0meG4dk.png"></a>
