@@ -1,15 +1,12 @@
-.PHONY: all zip clean check check_format fix mypy pylint ankiweb run test
+.PHONY: all zip clean check check_format fix mypy pylint ankiweb test
 
 all: zip
 
 zip:
-	python -m ankibuild --type package --install --qt all --noconsts --forms-dir forms --install
+	python -m ankibuild --type package --install --qt all --noconsts --forms-dir forms
 
 ankiweb:
-	python -m ankibuild --type ankiweb --install --qt all --noconsts --forms-dir forms --install
-
-run: zip
-	python -m ankirun
+	python -m ankibuild --type ankiweb --install --qt all --noconsts --forms-dir forms
 
 check: check_format mypy pylint
 
