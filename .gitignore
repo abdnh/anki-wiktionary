@@ -1,6 +1,8 @@
 venv/
-ankiprofile/
+ankidata/
 *.ankiaddon
 *.zip
 __pycache__/
 TODO.md
+samples/
+src/user_files/*/
