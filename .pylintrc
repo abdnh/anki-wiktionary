@@ -1,5 +1,5 @@
 [MASTER]
-ignore=forms
+ignore=forms,ankidata,samples,user_files
 extension-pkg-whitelist=PyQt6,PyQt5
 
 [REPORTS]

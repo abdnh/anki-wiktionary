@@ -11,11 +11,11 @@ ankiweb:
 check: check_format mypy pylint
 
 check_format:
-	python -m black --exclude=forms --check --diff --color src tests
+	python -m black --exclude="forms|ankidata|samples|user_files" --check --diff --color src tests
 	python -m isort --check --diff --color src tests
 
 fix:
-	python -m black --exclude=forms src tests
+	python -m black --exclude="forms|ankidata|samples|user_files" src tests
 	python -m isort src tests
 
 mypy:
