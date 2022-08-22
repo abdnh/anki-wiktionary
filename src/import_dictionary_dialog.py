@@ -8,7 +8,8 @@ from aqt.qt import QDialog, qconnect
 from aqt.utils import getFile, openLink, showWarning, tooltip
 
 from . import consts
-from .wiktionary_fetcher import WiktionaryFetcher
+
+from .dictionaries import dictionary_classes
 
 if qtmajor > 5:
     from .forms.import_dictionary_qt6 import Ui_Dialog
@@ -34,24 +35,25 @@ class ImportDictionaryDialog(QDialog):
             self.on_choose_file,
         )
         qconnect(self.form.addButton.clicked, self.on_add)
-        self.form.description.setText(
-            """
-Here you can import a new dictionary downloaded from <a href="https://kaikki.org/dictionary/">the dictionary list at kaikki.org</a>.<br>
-After finding your language link in the list and opening it, you'll find an option<br>
-at the bottom of the page to download a JSON file (which has a name like "kaikki.org-dictionary-Russian.json")<br>
-containing all word senses that you can import to Anki here.<br>
-The imported dictionary will be made available for use in the add-on's main dialog."""
-        )
         qconnect(
             self.form.description.linkActivated,
             lambda link: openLink(link),  # pylint: disable=unnecessary-lambda
         )
+        self.form.dictionaryComboBox.addItems([d.name for d in dictionary_classes])
+        qconnect(self.form.dictionaryComboBox.currentIndexChanged, self.on_dict_changed)
+        self.on_dict_changed(0)
+
+    def on_dict_changed(self, index: int) -> None:
+        desc = dictionary_classes[index].desc
+        self.form.description.setText(desc)
 
     def on_choose_file(self) -> None:
+        dictionary = dictionary_classes[self.form.dictionaryComboBox.currentIndex()]
         filename = getFile(
             self,
             title=consts.ADDON_NAME,
             cb=None,
+            filter=f"*.{dictionary.ext}",
             key=consts.ADDON_NAME,
         )
         if not filename:
@@ -84,7 +86,10 @@ The imported dictionary will be made available for use in the add-on's main dial
             except Exception as exc:
                 showWarning(str(exc), parent=self, title=consts.ADDON_NAME)
                 return
-            tooltip(f"Successfully imported {count} words", parent=self.mw)
+            if count is not None:
+                tooltip(f"Successfully imported {count} words", parent=self.mw)
+            else:
+                tooltip("Successfully imported dictionary", parent=self.mw)
             self.accept()
 
         filename = self.form.filenameLabel.text()
@@ -94,13 +99,13 @@ The imported dictionary will be made available for use in the add-on's main dial
             return
         self.mw.progress.start(label="Starting importing...", parent=self)
         self.mw.progress.set_title(f"{consts.ADDON_NAME} - Importing a dictionary")
-        # TODO: handle exceptions
+        dictionary = dictionary_classes[self.form.dictionaryComboBox.currentIndex()]
+        dictionary_root_folder = consts.USER_FILES / dictionary.name
+        dictionary_root_folder.mkdir(exist_ok=True)
+        output_folder = dictionary_root_folder / name
         self.mw.taskman.run_in_background(
-            lambda: WiktionaryFetcher.dump_kaikki_dict(
-                filename,
-                name,
-                on_progress=on_progress,
-                on_error=on_error,
+            lambda: dictionary.build_dict(
+                filename, output_folder, on_progress, on_error
             ),
             on_done=on_done,
         )

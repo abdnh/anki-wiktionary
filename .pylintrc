@@ -1,5 +1,5 @@
 [MASTER]
-ignore=forms,ankidata,samples,user_files
+ignore=forms,ankidata,samples,user_files,vendor
 extension-pkg-whitelist=PyQt6,PyQt5
 
 [REPORTS]
@@ -21,6 +21,9 @@ disable=
   unused-wildcard-import,
   too-many-arguments,
   fixme,
+  useless-return,
+  too-few-public-methods,
+
 
 [BASIC]
 good-names =

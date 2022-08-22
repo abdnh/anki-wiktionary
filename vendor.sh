@@ -1,0 +1,1 @@
+pip install zimply-core==1.0.7 -t src/vendor

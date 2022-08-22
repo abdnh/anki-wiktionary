@@ -1,5 +1,5 @@
 import os
-from typing import Any, Callable, List, Optional, Tuple, cast
+from typing import Any, Callable, List, Optional, Tuple
 
 from anki.notes import Note
 from aqt import qtmajor
@@ -9,7 +9,13 @@ from aqt.qt import QDialog, QPixmap, QWidget, qconnect
 from aqt.utils import showWarning
 
 from . import consts
-from .wiktionary_fetcher import WiktionaryFetcher, WordNotFoundError
+from .dictionaries import (
+    DictEntry,
+    DictException,
+    Dictionary,
+    Parser,
+    dictionary_classes,
+)
 
 if qtmajor > 5:
     from .forms.form_qt6 import Ui_Dialog
@@ -18,10 +24,6 @@ else:
 
 
 PROGRESS_LABEL = "Updated {count} out of {total} note(s)"
-
-
-def get_available_dicts() -> List[str]:
-    return [p.name for p in consts.USER_FILES.iterdir() if p.is_dir()]
 
 
 class WiktionaryFetcherDialog(QDialog):
@@ -47,9 +49,37 @@ class WiktionaryFetcherDialog(QDialog):
         self.form.icon.setPixmap(
             QPixmap(os.path.join(consts.ICONS_DIR, "enwiktionary-1.5x.png"))
         )
-        self.form.dictionaryComboBox.addItems(get_available_dicts())
-        self.downloader: Optional[WiktionaryFetcher] = None
+        self.form.providerComboBox.addItems(
+            [dictionary.name for dictionary in dictionary_classes]
+        )
+        self.on_provider_changed(0)
+        qconnect(
+            self.form.providerComboBox.currentIndexChanged, self.on_provider_changed
+        )
+
+        self.dictionary: Optional[Dictionary] = None
+        self.parser: Optional[Parser] = None
         qconnect(self.form.addButton.clicked, self.on_add)
+
+    def on_provider_changed(self, index: int) -> None:
+        self.form.dictionaryComboBox.clear()
+        provider_path = (
+            consts.USER_FILES
+            / dictionary_classes[self.form.providerComboBox.currentIndex()].name
+        )
+        provider_path.mkdir(exist_ok=True)
+        dictionary_names = [
+            path.name for path in provider_path.iterdir() if path.is_dir()
+        ]
+        self.form.dictionaryComboBox.addItems(dictionary_names)
+        parser_names = [
+            parser.name
+            for parser in dictionary_classes[
+                self.form.providerComboBox.currentIndex()
+            ].parsers
+        ]
+        self.form.parserComboBox.clear()
+        self.form.parserComboBox.addItems(parser_names)
 
     def exec(self) -> int:
         if self._fill_fields():
@@ -98,7 +128,10 @@ class WiktionaryFetcherDialog(QDialog):
             )
             return
         dictionary = self.form.dictionaryComboBox.currentText()
-        self.downloader = WiktionaryFetcher(dictionary)
+        dictionary_class = dictionary_classes[self.form.providerComboBox.currentIndex()]
+        dictionary_path = consts.USER_FILES / dictionary_class.name / dictionary
+        self.dictionary = dictionary_class(dictionary_path)
+        self.parser = self.dictionary.parsers[self.form.parserComboBox.currentIndex()]()
         word_field = self.form.wordFieldComboBox.currentText()
         definition_field_i = self.form.definitionFieldComboBox.currentIndex()
         example_field_i = self.form.exampleFieldComboBox.currentIndex()
@@ -116,8 +149,9 @@ class WiktionaryFetcherDialog(QDialog):
 
         def on_failure(exc: Exception) -> None:
             self.mw.progress.finish()
-            showWarning(str(exc), parent=self, title=consts.ADDON_NAME)
+            # showWarning(str(exc), parent=self, title=consts.ADDON_NAME)
             self.accept()
+            raise exc
 
         op = QueryOp(
             parent=self,
@@ -140,7 +174,7 @@ class WiktionaryFetcherDialog(QDialog):
     def _fill_notes(
         self,
         word_field: str,
-        field_tuples: Tuple[Tuple[int, Callable[[str], str]], ...],
+        field_tuples: Tuple[Tuple[int, Callable[[DictEntry], str]], ...],
     ) -> None:
         want_cancel = False
         self.errors = []
@@ -161,13 +195,17 @@ class WiktionaryFetcherDialog(QDialog):
             word = note[word_field]
             need_updating = False
             try:
+                dict_entry = self.dictionary.lookup(word, self.parser)
+                if not dict_entry:
+                    self.errors.append(f'"{word}" was not found in the dictionary.')
+                    continue
                 for field_tuple in field_tuples:
                     if not field_tuple[0]:
                         continue
-                    contents = field_tuple[1](word)
+                    contents = field_tuple[1](dict_entry)
                     note[self.field_names[field_tuple[0]]] = contents
                     need_updating = True
-            except WordNotFoundError as exc:
+            except DictException as exc:
                 self.errors.append(str(exc))
             finally:
                 if need_updating:
@@ -178,26 +216,20 @@ class WiktionaryFetcherDialog(QDialog):
                 break
         self.mw.taskman.run_on_main(self.mw.progress.finish)
 
-    def _get_definitions(self, word: str) -> str:
+    def _get_definitions(self, entry: DictEntry) -> str:
         field_contents = []
-        downloader = cast(WiktionaryFetcher, self.downloader)
-        defs = downloader.get_senses(word)
-        for i, definition in enumerate(defs):
-            field_contents.append(f"{i}. {definition}")
+        for i, definition in enumerate(entry.definitions):
+            field_contents.append(f"{i+1}. {definition}")
         return "<br>".join(field_contents)
 
-    def _get_examples(self, word: str) -> str:
+    def _get_examples(self, entry: DictEntry) -> str:
         field_contents = []
-        downloader = cast(WiktionaryFetcher, self.downloader)
-        examples = downloader.get_examples(word)
-        for example in examples:
+        for example in entry.examples:
             field_contents.append(example)
         return "<br>".join(field_contents)
 
-    def _get_gender(self, word: str) -> str:
-        downloader = cast(WiktionaryFetcher, self.downloader)
-        return downloader.get_gender(word)
+    def _get_gender(self, entry: DictEntry) -> str:
+        return entry.gender
 
-    def _get_part_of_speech(self, word: str) -> str:
-        downloader = cast(WiktionaryFetcher, self.downloader)
-        return downloader.get_part_of_speech(word)
+    def _get_part_of_speech(self, entry: DictEntry) -> str:
+        return entry.pos

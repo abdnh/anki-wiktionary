@@ -1,14 +1,25 @@
+import shutil
+import sys
 from typing import List
 
+from anki.collection import Collection
 from aqt import mw
 from aqt.browser.browser import Browser
 from aqt.editor import Editor
-from aqt.gui_hooks import browser_menus_did_init, editor_did_init_buttons
+from aqt.gui_hooks import (
+    browser_menus_did_init,
+    collection_did_load,
+    editor_did_init_buttons,
+)
 from aqt.operations import CollectionOp
 from aqt.qt import *
 from aqt.utils import showText, showWarning, tooltip
 
 from . import consts
+
+sys.path.append(str(consts.ADDON_DIR / "vendor"))
+
+# pylint: disable=wrong-import-position
 from .dialog import WiktionaryFetcherDialog
 from .import_dictionary_dialog import ImportDictionaryDialog
 
@@ -95,6 +106,29 @@ def add_wiktionary_menu() -> None:
     mw.form.menuTools.addMenu(menu)
 
 
+def run_migrations(col: Collection) -> None:
+    """
+    Move Kaikki dictionaries saved at the root of user_files by a previous version of the add-on to a subfolder named Kaikki
+    """
+    version = col.get_config(consts.VER_CONF_KEY)
+    if not version:
+        kaikki_dicts = [path for path in consts.USER_FILES.iterdir() if path.is_dir()]
+        kaikki_dir = consts.USER_FILES / "Kaikki"
+        try:
+            kaikki_dir.mkdir()
+        except FileExistsError:
+            showWarning(
+                "The new version of Wiktionary reserves the dictionary name 'Kaikki' to store Kaikki-specific dictionaries. Please rename your existing Kaikki folder to another name and restart Anki",
+                mw,
+                title=consts.ADDON_NAME,
+            )
+            return
+        for dict_path in kaikki_dicts:
+            shutil.move(dict_path, kaikki_dir)
+    col.set_config(consts.VER_CONF_KEY, consts.VERSION)
+
+
 browser_menus_did_init.append(on_browser_menus_did_init)
 editor_did_init_buttons.append(on_editor_did_init_buttons)
 add_wiktionary_menu()
+collection_did_load.append(run_migrations)
