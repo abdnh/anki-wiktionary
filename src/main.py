@@ -24,6 +24,9 @@ from .dialog import WiktionaryFetcherDialog
 from .import_dictionary_dialog import ImportDictionaryDialog
 
 
+PACKAGE_NAME = mw.addonManager.addonFromModule(__name__)
+
+
 def on_bulk_updated_notes(
     browser: Browser, errors: List[str], updated_count: int
 ) -> None:
@@ -110,8 +113,8 @@ def run_migrations(col: Collection) -> None:
     """
     Move Kaikki dictionaries saved at the root of user_files by a previous version of the add-on to a subfolder named Kaikki
     """
-    version = col.get_config(consts.VER_CONF_KEY)
-    if not version:
+    profile_conf = mw.pm.meta.get(PACKAGE_NAME, {})
+    if not profile_conf.get("version", None):
         kaikki_dicts = [path for path in consts.USER_FILES.iterdir() if path.is_dir()]
         kaikki_dir = consts.USER_FILES / "Kaikki"
         try:
@@ -125,7 +128,8 @@ def run_migrations(col: Collection) -> None:
             return
         for dict_path in kaikki_dicts:
             shutil.move(dict_path, kaikki_dir)
-    col.set_config(consts.VER_CONF_KEY, consts.VERSION)
+    profile_conf["version"] = consts.VERSION
+    mw.pm.meta[PACKAGE_NAME] = profile_conf
 
 
 browser_menus_did_init.append(on_browser_menus_did_init)
