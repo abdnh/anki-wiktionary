@@ -218,8 +218,11 @@ class WiktionaryFetcherDialog(QDialog):
 
     def _get_definitions(self, entry: DictEntry) -> str:
         field_contents = []
-        for i, definition in enumerate(entry.definitions):
-            field_contents.append(f"{i+1}. {definition}")
+        if len(entry.definitions) == 1:
+            field_contents.append(entry.definitions[0])
+        else:
+            for i, definition in enumerate(entry.definitions):
+                field_contents.append(f"{i+1}. {definition}")
         return "<br>".join(field_contents)
 
     def _get_examples(self, entry: DictEntry) -> str:
