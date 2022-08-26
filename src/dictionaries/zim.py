@@ -79,11 +79,70 @@ class GreekParser(Parser):
         return DictEntry(query, definitions, examples, gender, pos)
 
 
+class SpanishParser(Parser):
+    """
+    ZIM Parser for Spanish Wiktionary.
+    Only tested with wiktionary_es_all_maxi_2022-07.
+    Definition importing could use a lot of improvement.
+    """
+
+    name = "Spanish"
+
+    def lookup(self, query: str, dictionary: Dictionary) -> DictEntry | None:
+        assert isinstance(dictionary, ZIMDict)
+        try:
+            soup = dictionary.get_soup(dictionary.zim_client, query)
+        except KeyError:
+            return None
+        pos_labels = [
+            "sustantivo",
+            "nombre",
+            "preposición",
+            "pronombre",
+            "verbo",
+            "interjección",
+            "conjunción",
+            "adjetivo",
+            "adverbio",
+            "forma verbal",
+            "forma sustantiva",
+            "forma adjetiva",
+            "participio",
+            "artículo determinado",
+            "expresión",
+        ]
+        pos: list[str] = []
+        gender: list[str] = []
+        definitions: list[str] = []
+        spanish_el = soup.select_one("#Español")
+        if spanish_el:
+            parent_details = spanish_el.find_parents("details")[0]
+            for entry in parent_details.select("details"):
+                pos_gen_el = entry.find("summary")
+                possible_pos = ""
+                if pos_gen_el:
+                    spans = pos_gen_el.find_all("span")
+                    if spans:
+                        print(spans, len(spans))
+                        possible_pos = spans[0].get_text()
+                        if len(spans) >= 3:
+                            gender.append(spans[2].get_text())
+                    else:
+                        possible_pos = pos_gen_el.get_text()
+                if any(l in possible_pos.lower() for l in pos_labels):
+                    pos.append(possible_pos)
+                else:
+                    continue
+                definitions.append(entry.decode_contents())
+
+        return DictEntry(query, definitions, [], "<br>".join(gender), "<br>".join(pos))
+
+
 class ZIMDict(Dictionary):
     name = "ZIM"
     ext = "zim"
     desc = """Only a limited number of <a href="https://en.wikipedia.org/wiki/ZIM_(file_format)">ZIM</a> files listed at <a href="https://wiki.kiwix.org/wiki/Content_in_all_languages">this page</a> are supported currently."""
-    parsers: list[Type[Parser]] = [GreekParser]
+    parsers: list[Type[Parser]] = [GreekParser, SpanishParser]
 
     def __init__(self, path: Path):
         super().__init__(path)
