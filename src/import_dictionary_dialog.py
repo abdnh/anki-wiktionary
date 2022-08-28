@@ -8,7 +8,6 @@ from aqt.qt import QDialog, qconnect
 from aqt.utils import getFile, openLink, showWarning, tooltip
 
 from . import consts
-
 from .dictionaries import dictionary_classes
 
 if qtmajor > 5:

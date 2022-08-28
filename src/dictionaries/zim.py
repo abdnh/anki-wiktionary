@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 from typing import Callable, Type
 
+import spacy
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, PageElement, Tag
 from zimply_core.zim_core import ZIMClient
@@ -35,11 +36,28 @@ class GreekParser(Parser):
 
     name = "Greek"
 
+    def __init__(self) -> None:
+        self.nlp = spacy.load("el_core_news_sm")
+        super().__init__()
+
+    def _stem(self, word: str) -> str:
+        doc = self.nlp(word)
+        lemmas = []
+        for token in doc:
+            lemmas.append(token.lemma_)
+        return " ".join(lemmas)
+
     def lookup(self, query: str, dictionary: Dictionary) -> DictEntry | None:
         assert isinstance(dictionary, ZIMDict)
-        try:
-            soup = dictionary.get_soup(dictionary.zim_client, query)
-        except KeyError:
+        forms = [query, query.lower(), query.title(), query.upper(), self._stem(query)]
+        soup = None
+        for form in forms:
+            try:
+                soup = dictionary.get_soup(dictionary.zim_client, form)
+                break
+            except KeyError:
+                pass
+        if not soup:
             return None
         definitions: list[str] = []
         examples: list[str] = []

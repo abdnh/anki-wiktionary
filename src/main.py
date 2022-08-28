@@ -23,7 +23,6 @@ sys.path.append(str(consts.ADDON_DIR / "vendor"))
 from .dialog import WiktionaryFetcherDialog
 from .import_dictionary_dialog import ImportDictionaryDialog
 
-
 PACKAGE_NAME = mw.addonManager.addonFromModule(__name__)
 
 
