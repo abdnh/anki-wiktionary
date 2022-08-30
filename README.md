@@ -1,4 +1,13 @@
-Anki add-on to query words using Wiktionary data downloaded from https://kaikki.org
+Anki add-on to query words offline using Wiktionary.
+
+## Supported formats
+
+The add-on supports importing the JSON files from [Kaikki](https://kaikki.org/) listed at [this page](https://kaikki.org/dictionary/).
+
+
+[ZIM](https://en.wikipedia.org/wiki/ZIM_(file_format)) file importing was also recently added.
+This is less tested and the only dictionaries currently supported is the Greek and the Spanish ones.[^1]
+Pull requests to add support for more dictionaries and improve existing ones are very much appreciated. The HTML content of the entries stored in the ZIM file needs to be parsed for that. See [zim.py](./src/dictionaries/zim.py) for an example of how it's done for the supported languages.
 
 ## Usage
 
@@ -8,9 +17,7 @@ item in the browser for bulk operations on selected notes. You can also configur
 
 <img src="./images/dialog.png" width="600">
 
-You have to download the dictionary data you want for the add-on to work.
-For that, find your target language in https://kaikki.org/dictionary/ and download the JSON file containing all data listed at the bottom of the language page (which has a name like "kaikki.org-dictionary-Russian.json").
-Then in Anki, go to *Tools > Wiktionary -> Import a dictionary* to import the dictionary.
+To import a new dictionary, go to *Tools > Wiktionary -> Import a dictionary* and  follow the instructions specific to the type of your dictionary.
 
 <img src="./images/import_dialog.png" width="600">
 
@@ -35,3 +42,5 @@ Consider supporting me on Ko-fi or Patreon if you like my add-ons:
 I'm also available for freelance add-on development at Fiverr:
 
 <a href="https://www.fiverr.com/abd_nh/develop-an-anki-addon"><img height='36' src="https://i.imgur.com/0meG4dk.png"></a>
+
+[^1]: Specifically, the "wiktionary (Ελληνικά)" and "wiktionary (español)" dictionaries in https://wiki.kiwix.org/wiki/Content_in_all_languages
