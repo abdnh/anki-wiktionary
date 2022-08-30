@@ -31,7 +31,7 @@ def get_prev_sibling_element(element: Tag) -> PageElement | None:
 class GreekParser(Parser):
     """
     ZIM Parser for Greek Wiktionary.
-    Only tested with wiktionary_el_all_maxi_2022-07.zim and has some issues.
+    Only tested with wiktionary_el_all_maxi_2022-07.zim and has many issues.
     """
 
     name = "Greek"
@@ -59,42 +59,62 @@ class GreekParser(Parser):
                 pass
         if not soup:
             return None
+        pos_labels = [
+            "άρθρο",
+            "ουσιαστικό",
+            "επίθετο",
+            "αντωνυμία",
+            "ρήμα",
+            "κλιτή μετοχή",
+            "άκλιτη μετοχή",
+            "επίρρημα",
+            "σύνδεσμος",
+            "πρόθεση",
+            "επιφώνημα",
+            "ρηματικός τύπος",
+            "επιθέτου",
+            "ουσιαστικού",
+            "αριθμητικό",
+            "συντομομορφή",
+            "αριθμητικού",
+            "όνομα",
+            "μετοχή",
+            "μόριο",
+            "αντωνυμία",
+            "μετοχής",
+            "προστακτική",
+            "εκφράσεις",
+            "αντωνυμίας",
+        ]
+        pos: list[str] = []
+        gender: list[str] = []
         definitions: list[str] = []
-        examples: list[str] = []
-        gender = ""
-        pos = ""
-        pos_el = soup.select_one(".partofspeech")
-        if not pos_el:
-            definitions_el = soup.select_one("pre")
-            examples_el = soup.select_one("ol")
-            if definitions_el:
-                pos = get_prev_sibling_element(definitions_el).contents[-1].get_text()
-                definitions = [definitions_el.get_text()]
-            if examples_el:
-                examples = [el.get_text() for el in examples_el.select("li")]
-        else:
-            pos = pos_el.get_text()
-            nearest_parent = pos_el.parent.parent
-            sibling = get_next_sibling_element(nearest_parent)
-            if sibling.name in ("ol", "ul"):
-                definitions_el = sibling
-                definitions = [el.get_text() for el in definitions_el.select("li")]
-            elif sibling.name == "p":
-                definitions = [sibling.get_text()]
-            else:
-                gender_el = sibling
-                gender = gender_el.decode()
-                definitions_el = get_next_sibling_element(sibling)
-                if not definitions_el:
-                    redirect_str = soup.find(string="Δείτε επίσης")
-                    if redirect_str:
-                        el = get_next_sibling_element(redirect_str)
-                        synonym = el.get_text()
-                        return self.lookup(synonym, dictionary)
-                else:
-                    definitions = [el.get_text() for el in definitions_el.select("li")]
+        lang_ids = [
+            r"#Ελληνικά_\(el\)",
+            r"#Αρχαία_ελληνικά_\(grc\)",
+            r"#Μεσαιωνικά_ελληνικά_\(gkm\)",
+        ]
+        greek_el = None
+        for lang_id in lang_ids:
+            greek_el = soup.select_one(lang_id)
+        if greek_el:
+            parent_details = greek_el.find_parents("details")[0]
+            for entry in parent_details.select("details"):
+                pos_gen_el = entry.find("summary")
+                if pos_gen_el:
+                    possible_pos = pos_gen_el.get_text()
+                    pos_gen_el_title = pos_gen_el.get("title", "")
+                    if any(
+                        l.lower() in possible_pos.lower() for l in pos_labels
+                    ) or any(l.lower() in pos_gen_el_title.lower() for l in pos_labels):
+                        pos.append(possible_pos)
+                    else:
+                        continue
+                # We're dumping all the entry contents here, which include parts of speech, example sentences, etc.
+                # FIXME: find a consistent structure to parse this mess
+                definitions.append(entry.decode_contents())
 
-        return DictEntry(query, definitions, examples, gender, pos)
+        return DictEntry(query, definitions, [], "<br>".join(gender), "<br>".join(pos))
 
 
 class SpanishParser(Parser):
@@ -151,6 +171,8 @@ class SpanishParser(Parser):
                     pos.append(possible_pos)
                 else:
                     continue
+                # We're dumping all the entry contents here, which include parts of speech, example sentences, etc.
+                # FIXME: find a consistent structure to parse this mess
                 definitions.append(entry.decode_contents())
 
         return DictEntry(query, definitions, [], "<br>".join(gender), "<br>".join(pos))
