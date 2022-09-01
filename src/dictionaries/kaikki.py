@@ -7,6 +7,7 @@ from typing import Callable, Type
 
 from .dictionary import DictEntry, Dictionary
 from .parser import Parser
+from .utils import strip_punct
 
 
 class GeneralParser(Parser):
@@ -86,5 +87,6 @@ class KaikkiDict(Dictionary):
             return json.load(file)
 
     def lookup(self, query: str, parser: Parser) -> DictEntry | None:
+        query = strip_punct(query)
         super().lookup(query, parser)
         return parser.lookup(query, self)

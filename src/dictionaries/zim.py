@@ -12,6 +12,7 @@ from zimply_core.zim_core import ZIMClient
 
 from .dictionary import DictEntry, DictException, Dictionary
 from .parser import Parser
+from .utils import strip_punct
 
 
 def get_next_sibling_element(element: Tag) -> PageElement | None:
@@ -214,5 +215,6 @@ class ZIMDict(Dictionary):
         return soup
 
     def lookup(self, query: str, parser: Parser) -> DictEntry | None:
+        query = strip_punct(query)
         super().lookup(query, parser)
         return parser.lookup(query, self)
