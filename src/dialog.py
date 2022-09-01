@@ -9,13 +9,7 @@ from aqt.qt import QDialog, QPixmap, QWidget, qconnect
 from aqt.utils import showWarning
 
 from . import consts
-from .dictionaries import (
-    DictEntry,
-    DictException,
-    Dictionary,
-    Parser,
-    dictionary_classes,
-)
+from .dictionaries import DictEntry, DictException, Dictionary, Parser, get_dictionaries
 
 if qtmajor > 5:
     from .forms.form_qt6 import Ui_Dialog
@@ -46,12 +40,13 @@ class WiktionaryFetcherDialog(QDialog):
             self.form.genderFieldComboBox,
             self.form.POSFieldComboBox,
         ]
+        self.dicts = get_dictionaries()
         self.setWindowTitle(consts.ADDON_NAME)
         self.form.icon.setPixmap(
             QPixmap(os.path.join(consts.ICONS_DIR, "enwiktionary-1.5x.png"))
         )
         self.form.providerComboBox.addItems(
-            [dictionary.name for dictionary in dictionary_classes]
+            [dict_tuple[0].name for dict_tuple in self.dicts]
         )
         self.on_provider_changed(0)
         qconnect(
@@ -65,21 +60,10 @@ class WiktionaryFetcherDialog(QDialog):
 
     def on_provider_changed(self, index: int) -> None:
         self.form.dictionaryComboBox.clear()
-        provider_path = (
-            consts.USER_FILES
-            / dictionary_classes[self.form.providerComboBox.currentIndex()].name
-        )
-        provider_path.mkdir(exist_ok=True)
-        dictionary_names = [
-            path.name for path in provider_path.iterdir() if path.is_dir()
-        ]
+        dict_tuple = self.dicts[self.form.providerComboBox.currentIndex()]
+        dictionary_names = [path.name for path in dict_tuple[1]]
         self.form.dictionaryComboBox.addItems(dictionary_names)
-        parser_names = [
-            parser.name
-            for parser in dictionary_classes[
-                self.form.providerComboBox.currentIndex()
-            ].parsers
-        ]
+        parser_names = [parser.name for parser in dict_tuple[0].parsers]
         self.form.parserComboBox.clear()
         self.form.parserComboBox.addItems(parser_names)
 
@@ -177,9 +161,9 @@ class WiktionaryFetcherDialog(QDialog):
                 textFormat="rich",
             )
             return
-        dictionary = self.form.dictionaryComboBox.currentText()
-        dictionary_class = dictionary_classes[self.form.providerComboBox.currentIndex()]
-        dictionary_path = consts.USER_FILES / dictionary_class.name / dictionary
+        dict_tuple = self.dicts[self.form.providerComboBox.currentIndex()]
+        dictionary_class = dict_tuple[0]
+        dictionary_path = dict_tuple[1][self.form.dictionaryComboBox.currentIndex()]
         self.dictionary = dictionary_class(dictionary_path)
         self.parser = self.dictionary.parsers[self.form.parserComboBox.currentIndex()]()
         word_field = self.form.wordFieldComboBox.currentText()
