@@ -98,6 +98,8 @@ class GreekParser(Parser):
         greek_el = None
         for lang_id in lang_ids:
             greek_el = soup.select_one(lang_id)
+            if greek_el:
+                break
         if greek_el:
             parent_details = greek_el.find_parents("details")[0]
             for entry in parent_details.select("details"):
