@@ -37,6 +37,7 @@ class WiktionaryFetcherDialog(QDialog):
         self.form = Ui_Dialog()
         self.form.setupUi(self)
         self.mw = mw
+        self.config = mw.addonManager.getConfig(__name__)
         self.notes = notes
         self.combos = [
             self.form.wordFieldComboBox,
@@ -60,6 +61,7 @@ class WiktionaryFetcherDialog(QDialog):
         self.dictionary: Optional[Dictionary] = None
         self.parser: Optional[Parser] = None
         qconnect(self.form.addButton.clicked, self.on_add)
+        qconnect(self.finished, self.on_finished)
 
     def on_provider_changed(self, index: int) -> None:
         self.form.dictionaryComboBox.clear()
@@ -108,7 +110,55 @@ class WiktionaryFetcherDialog(QDialog):
                     combo_index, field_index
                 ),
             )
+        self.set_last_used_settings()
         return 1
+
+    CONFIG_MODEL_FIELDS = (
+        "word_field",
+        "definition_field",
+        "example_field",
+        "gender_field",
+        "part_of_speech_field",
+    )
+
+    def set_last_used_settings(self) -> None:
+        source = self.config["source_field"].lower()
+        for i in range(self.form.providerComboBox.count()):
+            text = self.form.providerComboBox.itemText(i)
+            if text.lower() == source:
+                self.form.providerComboBox.setCurrentIndex(i)
+                break
+        dictionary = self.config["dictionary_field"].lower()
+        for i in range(self.form.dictionaryComboBox.count()):
+            text = self.form.dictionaryComboBox.itemText(i)
+            if text.lower() == dictionary:
+                self.form.dictionaryComboBox.setCurrentIndex(i)
+                break
+        parser = self.config["parser_field"].lower()
+        for i in range(self.form.parserComboBox.count()):
+            text = self.form.parserComboBox.itemText(i)
+            if text.lower() == parser:
+                self.form.parserComboBox.setCurrentIndex(i)
+                break
+        for i, field_opt in enumerate(self.CONFIG_MODEL_FIELDS):
+            field_name = self.config[field_opt].lower()
+            combo = self.combos[i]
+            for i in range(combo.count()):
+                text = combo.itemText(i)
+                if text.lower() == field_name:
+                    combo.setCurrentIndex(i)
+                    break
+
+    def save_settings(self) -> None:
+        self.config["source_field"] = self.form.providerComboBox.currentText()
+        self.config["dictionary_field"] = self.form.dictionaryComboBox.currentText()
+        self.config["parser_field"] = self.form.parserComboBox.currentText()
+        for i, field_opt in enumerate(self.CONFIG_MODEL_FIELDS):
+            self.config[field_opt] = self.combos[i].currentText()
+        self.mw.addonManager.writeConfig(__name__, self.config)
+
+    def on_finished(self, result: int) -> None:
+        self.save_settings()
 
     def on_selected_field_changed(self, combo_index: int, field_index: int) -> None:
         if field_index == 0:
