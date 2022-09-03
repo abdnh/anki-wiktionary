@@ -53,6 +53,42 @@ class GreekParser(Parser):
             lemmas.append(token.lemma_)
         return " ".join(lemmas)
 
+    # HTML IDs one of which is assumed to exist in the queried page
+    LANG_IDS = [
+        r"#Ελληνικά_\(el\)",
+        r"#Αρχαία_ελληνικά_\(grc\)",
+        r"#Μεσαιωνικά_ελληνικά_\(gkm\)",
+    ]
+
+    # Greek parts of speech used to detect parts of speech and definitions
+    POS_LABELS = [
+        "άρθρο",
+        "ουσιαστικό",
+        "επίθετο",
+        "αντωνυμία",
+        "ρήμα",
+        "κλιτή μετοχή",
+        "άκλιτη μετοχή",
+        "επίρρημα",
+        "σύνδεσμος",
+        "πρόθεση",
+        "επιφώνημα",
+        "ρηματικός τύπος",
+        "επιθέτου",
+        "ουσιαστικού",
+        "αριθμητικό",
+        "συντομομορφή",
+        "αριθμητικού",
+        "όνομα",
+        "μετοχή",
+        "μόριο",
+        "αντωνυμία",
+        "μετοχής",
+        "προστακτική",
+        "εκφράσεις",
+        "αντωνυμίας",
+    ]
+
     def lookup(self, query: str, dictionary: Dictionary) -> DictEntry | None:
         assert isinstance(dictionary, ZIMDict)
         forms = [query, query.lower(), query.title(), query.upper(), self._stem(query)]
@@ -65,45 +101,13 @@ class GreekParser(Parser):
                 pass
         if not soup:
             return None
-        pos_labels = [
-            "άρθρο",
-            "ουσιαστικό",
-            "επίθετο",
-            "αντωνυμία",
-            "ρήμα",
-            "κλιτή μετοχή",
-            "άκλιτη μετοχή",
-            "επίρρημα",
-            "σύνδεσμος",
-            "πρόθεση",
-            "επιφώνημα",
-            "ρηματικός τύπος",
-            "επιθέτου",
-            "ουσιαστικού",
-            "αριθμητικό",
-            "συντομομορφή",
-            "αριθμητικού",
-            "όνομα",
-            "μετοχή",
-            "μόριο",
-            "αντωνυμία",
-            "μετοχής",
-            "προστακτική",
-            "εκφράσεις",
-            "αντωνυμίας",
-        ]
         pos: list[str] = []
         gender: list[str] = []
         definitions: list[str] = []
         inflections = ""
         translations = ""
-        lang_ids = [
-            r"#Ελληνικά_\(el\)",
-            r"#Αρχαία_ελληνικά_\(grc\)",
-            r"#Μεσαιωνικά_ελληνικά_\(gkm\)",
-        ]
         greek_el = None
-        for lang_id in lang_ids:
+        for lang_id in self.LANG_IDS:
             greek_el = soup.select_one(lang_id)
             if greek_el:
                 break
@@ -120,8 +124,10 @@ class GreekParser(Parser):
                     possible_pos = summary_el.get_text()
                     summary_el_title = summary_el.get("title", "")
                     if any(
-                        l.lower() in possible_pos.lower() for l in pos_labels
-                    ) or any(l.lower() in summary_el_title.lower() for l in pos_labels):
+                        l.lower() in possible_pos.lower() for l in self.POS_LABELS
+                    ) or any(
+                        l.lower() in summary_el_title.lower() for l in self.POS_LABELS
+                    ):
                         pos.append(possible_pos)
                     elif translation_h:
                         translations = entry.decode_contents()
@@ -153,29 +159,31 @@ class SpanishParser(Parser):
 
     name = "Spanish"
 
+    # Spanish parts of speech used to detect parts of speech and definitions
+    POS_LABELS = [
+        "sustantivo",
+        "nombre",
+        "preposición",
+        "pronombre",
+        "verbo",
+        "interjección",
+        "conjunción",
+        "adjetivo",
+        "adverbio",
+        "forma verbal",
+        "forma sustantiva",
+        "forma adjetiva",
+        "participio",
+        "artículo determinado",
+        "expresión",
+    ]
+
     def lookup(self, query: str, dictionary: Dictionary) -> DictEntry | None:
         assert isinstance(dictionary, ZIMDict)
         try:
             soup = dictionary.get_soup(dictionary.zim_client, query)
         except KeyError:
             return None
-        pos_labels = [
-            "sustantivo",
-            "nombre",
-            "preposición",
-            "pronombre",
-            "verbo",
-            "interjección",
-            "conjunción",
-            "adjetivo",
-            "adverbio",
-            "forma verbal",
-            "forma sustantiva",
-            "forma adjetiva",
-            "participio",
-            "artículo determinado",
-            "expresión",
-        ]
         pos: list[str] = []
         gender: list[str] = []
         definitions: list[str] = []
@@ -201,7 +209,7 @@ class SpanishParser(Parser):
                     else:
                         possible_pos = summary_el.get_text()
                     summary_el.decompose()
-                if any(l in possible_pos.lower() for l in pos_labels):
+                if any(l in possible_pos.lower() for l in self.POS_LABELS):
                     pos.append(possible_pos)
                 elif translation_h:
                     translations = entry.decode_contents()
