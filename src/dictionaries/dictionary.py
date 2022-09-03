@@ -21,6 +21,7 @@ class DictEntry:
     gender: str
     pos: str
     inflections: str
+    translations: str
 
 
 class Dictionary(ABC):

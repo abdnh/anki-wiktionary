@@ -76,7 +76,7 @@
      <item row="8" column="1">
       <widget class="QComboBox" name="POSFieldComboBox"/>
      </item>
-     <item row="10" column="1">
+     <item row="11" column="1">
       <widget class="QPushButton" name="addButton">
        <property name="text">
         <string>Add</string>
@@ -120,6 +120,16 @@
       <widget class="QLabel" name="label_9">
        <property name="text">
         <string>Inflection</string>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="1">
+      <widget class="QComboBox" name="translationFieldComboBox"/>
+     </item>
+     <item row="10" column="0">
+      <widget class="QLabel" name="label_10">
+       <property name="text">
+        <string>Translation</string>
        </property>
       </widget>
      </item>

@@ -96,6 +96,7 @@ class GreekParser(Parser):
         gender: list[str] = []
         definitions: list[str] = []
         inflections = ""
+        translations = ""
         lang_ids = [
             r"#Ελληνικά_\(el\)",
             r"#Αρχαία_ελληνικά_\(grc\)",
@@ -113,23 +114,33 @@ class GreekParser(Parser):
                 inflections = inflection_table_el.decode()
             for entry in parent_details.select("details"):
                 strip_images(entry)
-                pos_gen_el = entry.find("summary")
-                if pos_gen_el:
-                    possible_pos = pos_gen_el.get_text()
-                    pos_gen_el_title = pos_gen_el.get("title", "")
+                summary_el = entry.find("summary")
+                translation_h = entry.select_one("#Μεταφράσεις")
+                if summary_el:
+                    possible_pos = summary_el.get_text()
+                    summary_el_title = summary_el.get("title", "")
                     if any(
                         l.lower() in possible_pos.lower() for l in pos_labels
-                    ) or any(l.lower() in pos_gen_el_title.lower() for l in pos_labels):
+                    ) or any(l.lower() in summary_el_title.lower() for l in pos_labels):
                         pos.append(possible_pos)
+                    elif translation_h:
+                        translations = entry.decode_contents()
+                        continue
                     else:
                         continue
-                    pos_gen_el.decompose()
+                    summary_el.decompose()
                 # We're dumping all the entry contents here, which include parts of speech, example sentences, etc.
                 # FIXME: find a consistent structure to parse this mess
                 definitions.append(entry.decode_contents())
 
         return DictEntry(
-            query, definitions, [], "<br>".join(gender), "<br>".join(pos), inflections
+            query,
+            definitions,
+            [],
+            "<br>".join(gender),
+            "<br>".join(pos),
+            inflections,
+            translations,
         )
 
 
@@ -168,8 +179,9 @@ class SpanishParser(Parser):
         pos: list[str] = []
         gender: list[str] = []
         definitions: list[str] = []
-        spanish_el = soup.select_one("#Español")
         inflections = ""
+        translations = ""
+        spanish_el = soup.select_one("#Español")
         if spanish_el:
             parent_details = spanish_el.find_parents("details")[0]
             inflection_table_el = parent_details.select_one(".inflection-table")
@@ -177,19 +189,23 @@ class SpanishParser(Parser):
                 inflections = inflection_table_el.decode()
             for entry in parent_details.select("details"):
                 strip_images(entry)
-                pos_gen_el = entry.find("summary")
+                summary_el = entry.find("summary")
+                translation_h = entry.select_one("#Traducciones")
                 possible_pos = ""
-                if pos_gen_el:
-                    spans = pos_gen_el.find_all("span")
+                if summary_el:
+                    spans = summary_el.find_all("span")
                     if spans:
                         possible_pos = spans[0].get_text()
                         if len(spans) >= 3:
                             gender.append(spans[2].get_text())
                     else:
-                        possible_pos = pos_gen_el.get_text()
-                    pos_gen_el.decompose()
+                        possible_pos = summary_el.get_text()
+                    summary_el.decompose()
                 if any(l in possible_pos.lower() for l in pos_labels):
                     pos.append(possible_pos)
+                elif translation_h:
+                    translations = entry.decode_contents()
+                    continue
                 else:
                     continue
                 # We're dumping all the entry contents here, which include parts of speech, example sentences, etc.
@@ -197,7 +213,13 @@ class SpanishParser(Parser):
                 definitions.append(entry.decode_contents())
 
         return DictEntry(
-            query, definitions, [], "<br>".join(gender), "<br>".join(pos), inflections
+            query,
+            definitions,
+            [],
+            "<br>".join(gender),
+            "<br>".join(pos),
+            inflections,
+            translations,
         )
 
 
