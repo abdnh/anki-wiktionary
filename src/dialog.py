@@ -39,6 +39,7 @@ class WiktionaryFetcherDialog(QDialog):
             self.form.exampleFieldComboBox,
             self.form.genderFieldComboBox,
             self.form.POSFieldComboBox,
+            self.form.inflectionFieldComboBox,
         ]
         self.dicts = get_dictionaries()
         self.setWindowTitle(consts.ADDON_NAME)
@@ -103,6 +104,7 @@ class WiktionaryFetcherDialog(QDialog):
         "example_field",
         "gender_field",
         "part_of_speech_field",
+        "inflection_field",
     )
 
     def set_last_used_settings(self) -> None:
@@ -171,11 +173,13 @@ class WiktionaryFetcherDialog(QDialog):
         example_field_i = self.form.exampleFieldComboBox.currentIndex()
         gender_field_i = self.form.genderFieldComboBox.currentIndex()
         pos_field_i = self.form.POSFieldComboBox.currentIndex()
+        inflection_field_i = self.form.inflectionFieldComboBox.currentIndex()
         field_tuples = (
             (definition_field_i, self._get_definitions),
             (example_field_i, self._get_examples),
             (gender_field_i, self._get_gender),
             (pos_field_i, self._get_part_of_speech),
+            (inflection_field_i, self._get_inflections),
         )
 
         def on_success(ret: Any) -> None:
@@ -270,3 +274,6 @@ class WiktionaryFetcherDialog(QDialog):
 
     def _get_part_of_speech(self, entry: DictEntry) -> str:
         return entry.pos
+
+    def _get_inflections(self, entry: DictEntry) -> str:
+        return entry.inflections

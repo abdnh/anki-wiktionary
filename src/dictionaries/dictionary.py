@@ -20,6 +20,7 @@ class DictEntry:
     examples: list[str]
     gender: str
     pos: str
+    inflections: str
 
 
 class Dictionary(ABC):

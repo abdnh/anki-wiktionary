@@ -28,6 +28,7 @@ def get_prev_sibling_element(element: Tag) -> PageElement | None:
         sibling = sibling.previous_sibling
     return sibling
 
+
 def strip_images(element: Tag) -> None:
     for img in element.find_all("img"):
         img.decompose()
@@ -94,6 +95,7 @@ class GreekParser(Parser):
         pos: list[str] = []
         gender: list[str] = []
         definitions: list[str] = []
+        inflections = ""
         lang_ids = [
             r"#Ελληνικά_\(el\)",
             r"#Αρχαία_ελληνικά_\(grc\)",
@@ -106,6 +108,9 @@ class GreekParser(Parser):
                 break
         if greek_el:
             parent_details = greek_el.find_parents("details")[0]
+            inflection_table_el = parent_details.select_one("table")
+            if inflection_table_el:
+                inflections = inflection_table_el.decode()
             for entry in parent_details.select("details"):
                 strip_images(entry)
                 pos_gen_el = entry.find("summary")
@@ -123,7 +128,9 @@ class GreekParser(Parser):
                 # FIXME: find a consistent structure to parse this mess
                 definitions.append(entry.decode_contents())
 
-        return DictEntry(query, definitions, [], "<br>".join(gender), "<br>".join(pos))
+        return DictEntry(
+            query, definitions, [], "<br>".join(gender), "<br>".join(pos), inflections
+        )
 
 
 class SpanishParser(Parser):
@@ -162,8 +169,12 @@ class SpanishParser(Parser):
         gender: list[str] = []
         definitions: list[str] = []
         spanish_el = soup.select_one("#Español")
+        inflections = ""
         if spanish_el:
             parent_details = spanish_el.find_parents("details")[0]
+            inflection_table_el = parent_details.select_one(".inflection-table")
+            if inflection_table_el:
+                inflections = inflection_table_el.decode()
             for entry in parent_details.select("details"):
                 strip_images(entry)
                 pos_gen_el = entry.find("summary")
@@ -171,7 +182,6 @@ class SpanishParser(Parser):
                 if pos_gen_el:
                     spans = pos_gen_el.find_all("span")
                     if spans:
-                        print(spans, len(spans))
                         possible_pos = spans[0].get_text()
                         if len(spans) >= 3:
                             gender.append(spans[2].get_text())
@@ -186,7 +196,9 @@ class SpanishParser(Parser):
                 # FIXME: find a consistent structure to parse this mess
                 definitions.append(entry.decode_contents())
 
-        return DictEntry(query, definitions, [], "<br>".join(gender), "<br>".join(pos))
+        return DictEntry(
+            query, definitions, [], "<br>".join(gender), "<br>".join(pos), inflections
+        )
 
 
 class ZIMDict(Dictionary):
