@@ -251,13 +251,13 @@ class WiktionaryFetcherDialog(QDialog):
         self.mw.taskman.run_on_main(self.mw.progress.finish)
 
     def _get_definitions(self, entry: DictEntry) -> str:
-        field_contents = []
         if len(entry.definitions) == 1:
-            field_contents.append(entry.definitions[0])
-        else:
-            for i, definition in enumerate(entry.definitions):
-                field_contents.append(f"{i+1}. {definition}")
-        return "<br>".join(field_contents)
+            return entry.definitions[0]
+        formatted = "<ul>"
+        for definition in entry.definitions:
+            formatted += f"<li>{definition}</li>"
+        formatted += "</ul>"
+        return formatted
 
     def _get_examples(self, entry: DictEntry) -> str:
         field_contents = []
