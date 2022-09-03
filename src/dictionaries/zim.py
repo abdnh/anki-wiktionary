@@ -28,6 +28,10 @@ def get_prev_sibling_element(element: Tag) -> PageElement | None:
         sibling = sibling.previous_sibling
     return sibling
 
+def strip_images(element: Tag) -> None:
+    for img in element.find_all("img"):
+        img.decompose()
+
 
 class GreekParser(Parser):
     """
@@ -103,6 +107,7 @@ class GreekParser(Parser):
         if greek_el:
             parent_details = greek_el.find_parents("details")[0]
             for entry in parent_details.select("details"):
+                strip_images(entry)
                 pos_gen_el = entry.find("summary")
                 if pos_gen_el:
                     possible_pos = pos_gen_el.get_text()
@@ -113,6 +118,7 @@ class GreekParser(Parser):
                         pos.append(possible_pos)
                     else:
                         continue
+                    pos_gen_el.decompose()
                 # We're dumping all the entry contents here, which include parts of speech, example sentences, etc.
                 # FIXME: find a consistent structure to parse this mess
                 definitions.append(entry.decode_contents())
@@ -159,6 +165,7 @@ class SpanishParser(Parser):
         if spanish_el:
             parent_details = spanish_el.find_parents("details")[0]
             for entry in parent_details.select("details"):
+                strip_images(entry)
                 pos_gen_el = entry.find("summary")
                 possible_pos = ""
                 if pos_gen_el:
@@ -170,6 +177,7 @@ class SpanishParser(Parser):
                             gender.append(spans[2].get_text())
                     else:
                         possible_pos = pos_gen_el.get_text()
+                    pos_gen_el.decompose()
                 if any(l in possible_pos.lower() for l in pos_labels):
                     pos.append(possible_pos)
                 else:
