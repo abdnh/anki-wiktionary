@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import functools
+import re
 import shutil
 from pathlib import Path
 from typing import Callable, Type
@@ -54,14 +55,14 @@ class GreekParser(Parser):
         return " ".join(lemmas)
 
     # HTML IDs one of which is assumed to exist in the queried page
-    LANG_IDS = [
+    LANG_IDS = (
         r"#Ελληνικά_\(el\)",
         r"#Αρχαία_ελληνικά_\(grc\)",
         r"#Μεσαιωνικά_ελληνικά_\(gkm\)",
-    ]
+    )
 
     # Greek parts of speech used to detect parts of speech and definitions
-    POS_LABELS = [
+    POS_LABELS = (
         "άρθρο",
         "ουσιαστικό",
         "επίθετο",
@@ -87,7 +88,20 @@ class GreekParser(Parser):
         "προστακτική",
         "εκφράσεις",
         "αντωνυμίας",
-    ]
+    )
+
+    # A tuple of regexes used to detect redirects and bools used to decide whether to merge the current entry definitions with the redirected-to entry (incomplete)
+    REDIRECT_PATTERNS = tuple(
+        (re.compile(s), merge)
+        for (s, merge) in (
+            (r"ενικό.*?του ρήματος\s+(.*)", False),
+            (r"υποκοριστικό.*?του\s+(.*)", False),
+            (r"(?:(?:θηλυκό)|(?:αρσενικό)|(?:ουδέτερο)).*?του\s+(\w+)", False),
+            (r"(.*?),.*?του.*?ενικού", False),
+            (r"(.*?),.*?του.*?πληθυντικού", False),
+            (r"το.*?αποτέλεσμα.*?του\s+(.*)", True),
+        )
+    )
 
     def lookup(self, query: str, dictionary: Dictionary) -> DictEntry | None:
         assert isinstance(dictionary, ZIMDict)
@@ -135,7 +149,25 @@ class GreekParser(Parser):
                     else:
                         continue
                     summary_el.decompose()
-                # We're dumping all the entry contents here, which include parts of speech, example sentences, etc.
+                # Try to detect redirects from variants like plurals to the page of the base words where the actual definitions are.
+                # FIXME: should we only follow redirects if we find a single definition?
+                redirect_word = None
+                should_merge = False
+                entry_text = entry.get_text()
+                for (redirect_pattern, merge) in self.REDIRECT_PATTERNS:
+                    match = redirect_pattern.search(entry_text)
+                    if match:
+                        redirect_word = match.group(1)
+                        should_merge = merge
+                        break
+                if redirect_word:
+                    redirect_dictentry = self.lookup(redirect_word, dictionary)
+                    if should_merge:
+                        redirect_dictentry.definitions = [
+                            entry.decode_contents()
+                        ] + redirect_dictentry.definitions
+                    return redirect_dictentry
+                # We're dumping all the entry contents here, which can include example sentences.
                 # FIXME: find a consistent structure to parse this mess
                 definitions.append(entry.decode_contents())
 
@@ -160,7 +192,7 @@ class SpanishParser(Parser):
     name = "Spanish"
 
     # Spanish parts of speech used to detect parts of speech and definitions
-    POS_LABELS = [
+    POS_LABELS = (
         "sustantivo",
         "nombre",
         "preposición",
@@ -176,7 +208,7 @@ class SpanishParser(Parser):
         "participio",
         "artículo determinado",
         "expresión",
-    ]
+    )
 
     def lookup(self, query: str, dictionary: Dictionary) -> DictEntry | None:
         assert isinstance(dictionary, ZIMDict)
@@ -216,7 +248,7 @@ class SpanishParser(Parser):
                     continue
                 else:
                     continue
-                # We're dumping all the entry contents here, which include parts of speech, example sentences, etc.
+                # We're dumping all the entry contents here, which can include example sentences.
                 # FIXME: find a consistent structure to parse this mess
                 definitions.append(entry.decode_contents())
 
