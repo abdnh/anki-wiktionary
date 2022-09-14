@@ -38,7 +38,7 @@ class GeneralParser(Parser):
                 if g in form.get("tags", []):
                     gender = g
         pos = data.get("pos", "")
-        return DictEntry(query, definitions, examples, gender, pos)
+        return DictEntry(query, definitions, examples, gender, pos, "", "")
 
 
 class KaikkiDict(Dictionary):
