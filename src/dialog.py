@@ -219,20 +219,26 @@ class WiktionaryFetcherDialog(QDialog):
         self.mw.taskman.run_on_main(self.mw.progress.finish)
 
     def _get_definitions(self, word: str) -> str:
-        field_contents = []
         downloader = cast(WiktionaryFetcher, self.downloader)
         defs = downloader.get_senses(word)
-        for i, definition in enumerate(defs):
-            field_contents.append(f"{i}. {definition}")
-        return "<br>".join(field_contents)
+        if len(defs) == 1:
+            return defs[0]
+        formatted = "<ul>"
+        for definition in defs:
+            formatted += f"<li>{definition}</li>"
+        formatted += "</ul>"
+        return formatted
 
     def _get_examples(self, word: str) -> str:
-        field_contents = []
         downloader = cast(WiktionaryFetcher, self.downloader)
         examples = downloader.get_examples(word)
-        for example in examples:
-            field_contents.append(example)
-        return "<br>".join(field_contents)
+        if len(examples) == 1:
+            return examples[0]
+        formatted = "<ul>"
+        for definition in examples:
+            formatted += f"<li>{definition}</li>"
+        formatted += "</ul>"
+        return formatted
 
     def _get_gender(self, word: str) -> str:
         downloader = cast(WiktionaryFetcher, self.downloader)
