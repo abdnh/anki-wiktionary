@@ -6,3 +6,4 @@ __pycache__/
 TODO.md
 samples/
 src/user_files/*/
+src/meta.json
