@@ -7,4 +7,4 @@ black==22.6.0
 pylint==2.14.4
 isort==5.10.1
 ankibuild
-git+https://github.com/abdnh/ankibuild@54a837d942859aaa9512ffe7b27b483959d75d64#egg=ankibuild[qt5,qt6]
+git+https://github.com/abdnh/ankibuild@5092188f6b7c73e7bab2c7f64e7008a7e24466f6#egg=ankibuild[qt5,qt6]

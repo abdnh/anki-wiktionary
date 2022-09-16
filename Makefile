@@ -3,10 +3,10 @@
 all: zip
 
 zip:
-	python -m ankibuild --type package --install --qt all --noconsts --forms-dir forms
+	python -m ankibuild --type package --qt all --noconsts --forms-dir forms --exclude user_files/**/
 
 ankiweb:
-	python -m ankibuild --type ankiweb --install --qt all --noconsts --forms-dir forms
+	python -m ankibuild --type ankiweb --qt all --noconsts --forms-dir forms --exclude user_files/**/
 
 check: check_format mypy pylint
 
