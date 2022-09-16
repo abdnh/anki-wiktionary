@@ -1,4 +1,10 @@
 {
     "editor_shortcut": "Ctrl+S",
-    "browser_shortcut": "Ctrl+W"
+    "browser_shortcut": "Ctrl+W",
+    "dictionary_field": "",
+    "word_field": "",
+    "definition_field": "",
+    "example_field": "",
+    "gender_field": "",
+    "part_of_speech_field": ""
 }
