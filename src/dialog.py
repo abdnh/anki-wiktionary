@@ -1,6 +1,10 @@
 import os
 from typing import Any, Callable, List, Optional, Tuple, cast
 
+try:
+    from anki.utils import strip_html
+except ImportError:
+    from anki.utils import stripHTML as strip_html
 from anki.notes import Note
 from aqt import qtmajor
 from aqt.main import AnkiQt
@@ -194,7 +198,7 @@ class WiktionaryFetcherDialog(QDialog):
             )
 
         for i, note in enumerate(self.notes):
-            word = note[word_field]
+            word = strip_html(note[word_field]).strip()
             need_updating = False
             try:
                 for field_tuple in field_tuples:
