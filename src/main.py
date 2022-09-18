@@ -1,5 +1,6 @@
 from typing import List
 
+from anki.collection import Collection, OpChanges
 from aqt import mw
 from aqt.browser.browser import Browser
 from aqt.editor import Editor
@@ -33,10 +34,15 @@ def on_browser_action_triggered(browser: Browser) -> None:
     if dialog.exec():
         updated_notes = dialog.updated_notes
         errors = dialog.errors
-        CollectionOp(
-            parent=browser,
-            op=lambda col: col.update_notes(updated_notes),
-        ).success(
+
+        def op(col: Collection) -> OpChanges:
+            pos = col.add_custom_undo_entry(
+                f"Fill {len(updated_notes)} notes with data from Wiktionary"
+            )
+            col.update_notes(updated_notes)
+            return col.merge_undo_entries(pos)
+
+        CollectionOp(parent=browser, op=op,).success(
             lambda out: on_bulk_updated_notes(browser, errors, len(updated_notes)),
         ).run_in_background()
 
