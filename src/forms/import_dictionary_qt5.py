@@ -47,6 +47,8 @@ class Ui_Dialog(object):
         self.filenameLabel.setObjectName("filenameLabel")
         self.formLayout.setWidget(1, QtWidgets.QFormLayout.SpanningRole, self.filenameLabel)
         self.verticalLayout.addWidget(self.widget)
+        self.label.setBuddy(self.chooseFileButton)
+        self.label_2.setBuddy(self.dictionaryNameLineEdit)
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -55,7 +57,7 @@ class Ui_Dialog(object):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Wiktionary - Import a dictionary"))
         self.description.setText(_translate("Dialog", "Description"))
-        self.label.setText(_translate("Dialog", "Dictionary file"))
+        self.label.setText(_translate("Dialog", "Dictionary &file"))
         self.chooseFileButton.setText(_translate("Dialog", "Choose file"))
-        self.label_2.setText(_translate("Dialog", "Dictionary name"))
+        self.label_2.setText(_translate("Dialog", "Dictionary &name"))
         self.addButton.setText(_translate("Dialog", "Add"))

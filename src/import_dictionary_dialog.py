@@ -4,7 +4,7 @@ from typing import List
 
 from aqt import qtmajor
 from aqt.main import AnkiQt
-from aqt.qt import QDialog, qconnect
+from aqt.qt import QDialog, qconnect, QKeySequence
 from aqt.utils import getFile, openLink, showWarning, tooltip
 
 from . import consts
@@ -34,6 +34,7 @@ class ImportDictionaryDialog(QDialog):
             self.on_choose_file,
         )
         qconnect(self.form.addButton.clicked, self.on_add)
+        self.form.addButton.setShortcut(QKeySequence("Ctrl+Return"))
         self.form.description.setText(
             """
 Here you can import a new dictionary downloaded from <a href="https://kaikki.org/dictionary/">the dictionary list at kaikki.org</a>.<br>

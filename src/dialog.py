@@ -9,7 +9,7 @@ from anki.notes import Note
 from aqt import qtmajor
 from aqt.main import AnkiQt
 from aqt.operations import QueryOp
-from aqt.qt import QDialog, QPixmap, QWidget, qconnect
+from aqt.qt import QDialog, QPixmap, QWidget, qconnect, QKeySequence
 from aqt.utils import showWarning
 
 from . import consts
@@ -55,6 +55,7 @@ class WiktionaryFetcherDialog(QDialog):
         self.form.dictionaryComboBox.addItems(get_available_dicts())
         self.downloader: Optional[WiktionaryFetcher] = None
         qconnect(self.form.addButton.clicked, self.on_add)
+        self.form.addButton.setShortcut(QKeySequence("Ctrl+Return"))
         qconnect(self.finished, self.on_finished)
 
     def exec(self) -> int:
