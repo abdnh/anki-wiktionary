@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import os
-from typing import Any, Callable, List, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 try:
     from anki.utils import strip_html
@@ -16,7 +18,7 @@ from aqt.utils import showWarning
 from .. import consts
 from ..wiktionary_fetcher import WiktionaryFetcher, WordNotFoundError
 
-if qtmajor > 5:
+if TYPE_CHECKING or qtmajor > 5:
     from ..forms.main_qt6 import Ui_Dialog
 else:
     from ..forms.main_qt5 import Ui_Dialog  # type: ignore
@@ -25,7 +27,7 @@ else:
 PROGRESS_LABEL = "Updated {count} out of {total} note(s)"
 
 
-def get_available_dicts() -> List[str]:
+def get_available_dicts() -> list[str]:
     return [p.name for p in consts.USER_FILES.iterdir() if p.is_dir()]
 
 
@@ -34,7 +36,7 @@ class WiktionaryFetcherDialog(QDialog):
         self,
         mw: AnkiQt,
         parent: QWidget,
-        notes: List[Note],
+        notes: list[Note],
     ):
         super().__init__(parent)
         self.form = Ui_Dialog()
@@ -54,7 +56,7 @@ class WiktionaryFetcherDialog(QDialog):
             QPixmap(os.path.join(consts.ICONS_DIR, "enwiktionary-1.5x.png"))
         )
         self.form.dictionaryComboBox.addItems(get_available_dicts())
-        self.downloader: Optional[WiktionaryFetcher] = None
+        self.downloader: WiktionaryFetcher | None = None
         qconnect(self.form.addButton.clicked, self.on_add)
         self.form.addButton.setShortcut(QKeySequence("Ctrl+Return"))
         qconnect(self.finished, self.on_finished)
@@ -182,11 +184,11 @@ class WiktionaryFetcherDialog(QDialog):
     def _fill_notes(
         self,
         word_field: str,
-        field_tuples: Tuple[Tuple[int, Callable[[str], str]], ...],
+        field_tuples: tuple[tuple[int, Callable[[str], str]], ...],
     ) -> None:
         want_cancel = False
         self.errors = []
-        self.updated_notes: List[Note] = []
+        self.updated_notes: list[Note] = []
 
         def on_progress() -> None:
             nonlocal want_cancel

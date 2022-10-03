@@ -1,14 +1,16 @@
+from __future__ import annotations
+
 import builtins
 import tempfile
 import unittest
 from pathlib import Path
-from typing import Any, Callable, List, Union
+from typing import Any, Callable
 from unittest.mock import patch
 
 from src.wiktionary_fetcher import WiktionaryFetcher
 
 
-def mock_open(file: Union[str, Path], *args: Any, **kwargs: Any) -> Any:
+def mock_open(file: str | Path, *args: Any, **kwargs: Any) -> Any:
     # Make importing artifically fail for a certain file
     if file == "FAIL.json" or getattr(file, "name", "") == "FAIL.json":
         raise Exception("FAIL")
@@ -49,7 +51,7 @@ class TestWiktionaryFetcher(unittest.TestCase):
                 fetcher.get_examples("кошка")[0]
                 == "жить как ко́шка с соба́кой / to lead a cat-and-dog life"
             )
-            methods: List[Callable[[str], Any]] = [
+            methods: list[Callable[[str], Any]] = [
                 fetcher.get_examples,
                 fetcher.get_gender,
                 fetcher.get_part_of_speech,

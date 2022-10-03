@@ -1,5 +1,3 @@
-from typing import List
-
 from anki.collection import Collection, OpChanges
 from aqt import mw
 from aqt.browser.browser import Browser
@@ -15,7 +13,7 @@ from .gui.main import WiktionaryFetcherDialog
 
 
 def on_bulk_updated_notes(
-    browser: Browser, errors: List[str], updated_count: int
+    browser: Browser, errors: list[str], updated_count: int
 ) -> None:
     if updated_count:
         tooltip(f"Updated {updated_count} note(s).", period=5000, parent=browser)
@@ -69,7 +67,7 @@ def on_editor_button_clicked(editor: Editor) -> None:
         editor.loadNoteKeepingFocus()
 
 
-def on_editor_did_init_buttons(buttons: List[str], editor: Editor) -> None:
+def on_editor_did_init_buttons(buttons: list[str], editor: Editor) -> None:
     config = mw.addonManager.getConfig(__name__)
     shortcut = config["editor_shortcut"]
     button = editor.addButton(

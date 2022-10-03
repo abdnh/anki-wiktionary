@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import functools
 import json
 from pathlib import Path
-from typing import Callable, Dict, List, Union
+from typing import Callable
 
 from . import consts
 
@@ -21,7 +23,7 @@ class WiktionaryFetcher:
     @classmethod
     def dump_kaikki_dict(
         cls,
-        filename: Union[str, Path],
+        filename: str | Path,
         dictionary: str,
         on_progress: Callable[[int], bool],
         on_error: Callable[[str, Exception], None],
@@ -53,7 +55,7 @@ class WiktionaryFetcher:
 
     @staticmethod
     @functools.lru_cache
-    def _get_word_json(dict_dir: Path, word: str) -> Dict:
+    def _get_word_json(dict_dir: Path, word: str) -> dict:
         try:
             with open(dict_dir / f"{word}.json", encoding="utf-8") as file:
                 return json.load(file)
@@ -62,14 +64,14 @@ class WiktionaryFetcher:
                 f'"{word}" was not found in the dictionary.'
             ) from exc
 
-    def get_word_json(self, word: str) -> Dict:
+    def get_word_json(self, word: str) -> dict:
         return self._get_word_json(self.dict_dir, word)
 
-    def get_senses(self, word: str) -> List[str]:
+    def get_senses(self, word: str) -> list[str]:
         data = self.get_word_json(word)
         return ["\n".join(d.get("raw_glosses", [])) for d in data.get("senses", [])]
 
-    def get_examples(self, word: str) -> List[str]:
+    def get_examples(self, word: str) -> list[str]:
         data = self.get_word_json(word)
         examples = []
         for sense in data.get("senses", []):

@@ -1,6 +1,6 @@
 import re
 from concurrent.futures import Future
-from typing import List
+from typing import TYPE_CHECKING
 
 from aqt import qtmajor
 from aqt.main import AnkiQt
@@ -10,10 +10,10 @@ from aqt.utils import getFile, openLink, showWarning, tooltip
 from .. import consts
 from ..wiktionary_fetcher import WiktionaryFetcher
 
-if qtmajor > 5:
+if TYPE_CHECKING or qtmajor > 5:
     from ..forms.importer_qt6 import Ui_Dialog
 else:
-    from ..forms.importer_qt5 import Ui_Dialog  # type: ignore
+    from ..forms.importer_qt5 import Ui_Dialog # type: ignore
 
 
 class ImportDictionaryDialog(QDialog):
@@ -25,7 +25,7 @@ class ImportDictionaryDialog(QDialog):
         self.form = Ui_Dialog()
         self.form.setupUi(self)
         self.mw = mw
-        self.errors: List[str] = []
+        self.errors: list[str] = []
         self.setup_ui()
 
     def setup_ui(self) -> None:
