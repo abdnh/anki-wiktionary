@@ -8,12 +8,12 @@ from aqt.qt import QDialog, QKeySequence, qconnect
 from aqt.utils import getFile, openLink, showWarning, tooltip
 
 from .. import consts
-from ..wiktionary_fetcher import WiktionaryFetcher
+from ..fetcher import WiktionaryFetcher
 
 if TYPE_CHECKING or qtmajor > 5:
     from ..forms.importer_qt6 import Ui_Dialog
 else:
-    from ..forms.importer_qt5 import Ui_Dialog # type: ignore
+    from ..forms.importer_qt5 import Ui_Dialog  # type: ignore
 
 
 class ImportDictionaryDialog(QDialog):

@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Callable
 from unittest.mock import patch
 
-from src.wiktionary_fetcher import WiktionaryFetcher
+from src.fetcher import WiktionaryFetcher
 
 
 def mock_open(file: str | Path, *args: Any, **kwargs: Any) -> Any:
@@ -21,7 +21,7 @@ class TestWiktionaryFetcher(unittest.TestCase):
     DICT_NAME = "dict"
 
     def test_importing(self) -> None:
-        patcher = patch("src.wiktionary_fetcher.open", side_effect=mock_open)
+        patcher = patch("src.fetcher.open", side_effect=mock_open)
         patcher.start()
         failed_words = []
 

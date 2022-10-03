@@ -16,7 +16,7 @@ from aqt.qt import QDialog, QKeySequence, QPixmap, QWidget, qconnect
 from aqt.utils import showWarning
 
 from .. import consts
-from ..wiktionary_fetcher import WiktionaryFetcher, WordNotFoundError
+from ..fetcher import WiktionaryFetcher, WordNotFoundError
 
 if TYPE_CHECKING or qtmajor > 5:
     from ..forms.main_qt6 import Ui_Dialog
