@@ -10,8 +10,8 @@ from aqt.qt import *
 from aqt.utils import showText, showWarning, tooltip
 
 from . import consts
-from .dialog import WiktionaryFetcherDialog
-from .import_dictionary_dialog import ImportDictionaryDialog
+from .gui.importer import ImportDictionaryDialog
+from .gui.main import WiktionaryFetcherDialog
 
 
 def on_bulk_updated_notes(

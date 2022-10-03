@@ -5,20 +5,21 @@ try:
     from anki.utils import strip_html
 except ImportError:
     from anki.utils import stripHTML as strip_html
+
 from anki.notes import Note
 from aqt import qtmajor
 from aqt.main import AnkiQt
 from aqt.operations import QueryOp
-from aqt.qt import QDialog, QPixmap, QWidget, qconnect, QKeySequence
+from aqt.qt import QDialog, QKeySequence, QPixmap, QWidget, qconnect
 from aqt.utils import showWarning
 
-from . import consts
-from .wiktionary_fetcher import WiktionaryFetcher, WordNotFoundError
+from .. import consts
+from ..wiktionary_fetcher import WiktionaryFetcher, WordNotFoundError
 
 if qtmajor > 5:
-    from .forms.form_qt6 import Ui_Dialog
+    from ..forms.main_qt6 import Ui_Dialog
 else:
-    from .forms.form_qt5 import Ui_Dialog  # type: ignore
+    from ..forms.main_qt5 import Ui_Dialog  # type: ignore
 
 
 PROGRESS_LABEL = "Updated {count} out of {total} note(s)"
