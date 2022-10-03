@@ -25,7 +25,7 @@ def on_bulk_updated_notes(
         msg = ""
         msg += " The following issues happened during the process:\n"
         msg += "\n".join(errors)
-        showText(msg, parent=browser, title=consts.ADDON_NAME)
+        showText(msg, parent=browser, title=consts.ADDON_NAME, copyBtn=True)
 
 
 def on_browser_action_triggered(browser: Browser) -> None:
@@ -88,7 +88,8 @@ def on_import_dictionary() -> None:
     if dialog.errors:
         showText(
             "The following errors happened during the process:\n"
-            + "\n".join(dialog.errors)
+            + "\n".join(dialog.errors),
+            copyBtn=True,
         )
 
 
