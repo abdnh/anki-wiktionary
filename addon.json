@@ -2,5 +2,6 @@
     "name": "Wiktionary",
     "package": "wiktionary",
     "homepage": "https://github.com/abdnh/anki-wiktionary",
-    "ankiweb_id": "2087444887"
+    "ankiweb_id": "2087444887",
+    "min_point_version": 46
 }
