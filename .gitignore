@@ -1,10 +1,14 @@
+# Python
 venv/
-ankidata/
-*.ankiaddon
-*.zip
 __pycache__/
-TODO.md
-samples/
+
+# Anki
+ankidata/
+build/
 src/user_files/*/
 src/meta.json
 src/forms/
+
+# Misc
+TODO.md
+samples/
