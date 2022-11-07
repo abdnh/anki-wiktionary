@@ -8,6 +8,7 @@ build/
 src/user_files/*/
 src/meta.json
 src/forms/
+src/manifest.json
 
 # Misc
 TODO.md
