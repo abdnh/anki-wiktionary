@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import time
 from typing import TYPE_CHECKING, Any, Callable, cast
 
 try:
@@ -187,6 +188,7 @@ class WiktionaryFetcherDialog(QDialog):
         field_tuples: tuple[tuple[int, Callable[[str], str]], ...],
     ) -> None:
         want_cancel = False
+        last_progress = 0.0
         self.errors = []
         self.updated_notes: list[Note] = []
 
@@ -216,8 +218,9 @@ class WiktionaryFetcherDialog(QDialog):
             finally:
                 if need_updating:
                     self.updated_notes.append(note)
-                if i % 50 == 0:
+                if time.time() - last_progress >= 0.01:
                     self.mw.taskman.run_on_main(on_progress)
+                    last_progress = time.time()
             if want_cancel:
                 break
         self.mw.taskman.run_on_main(self.mw.progress.finish)
