@@ -3,14 +3,14 @@ Anki add-on to query words using Wiktionary data downloaded from https://kaikki.
 ## Usage
 
 The add-on provides an interface to fill notes with defintions, example sentences, etc.
-The interface can either be accessed from a button in the editor, or via the *Edit > Bulk-define from Wiktionary* menu
-item in the browser for bulk operations on selected notes. You can also configure shortcuts from *Tools > Add-ons*.
+The interface can either be accessed from a button in the editor, or via the _Edit > Bulk-define from Wiktionary_ menu
+item in the browser for bulk operations on selected notes. You can also configure shortcuts from _Tools > Add-ons_.
 
 <img src="./images/dialog.png" width="600">
 
 You have to download the dictionary data you want for the add-on to work.
 For that, find your target language in https://kaikki.org/dictionary/ and download the JSON file containing all data listed at the bottom of the language page (which has a name like "kaikki.org-dictionary-Russian.json").
-Then in Anki, go to *Tools > Wiktionary -> Import a dictionary* to import the dictionary.
+Then in Anki, go to _Tools > Wiktionary -> Import a dictionary_ to import the dictionary.
 
 <img src="./images/import_dialog.png" width="600">
 
@@ -26,12 +26,21 @@ You can download the add-on from its AnkiWeb page: https://ankiweb.net/shared/in
 
 The icons are taken from https://en.wiktionary.org/
 
+## Support & feature requests
+
+Please post any questions, bug reports, or feature requests in the [support page](https://forums.ankiweb.net/t/wiktionary-add-on/19571) or the [issue tracker](https://github.com/abdnh/anki-wiktionary/issues).
+
+If you want priority support for your feature/help request, I'm available for hire.
+You can get in touch from the aforementioned pages, via [email](mailto:abdo@abdnh.net) or on [Fiverr](https://www.fiverr.com/abd_nh).
+
 ## Support me
 
-Consider supporting me on Ko-fi or Patreon if you like my add-ons:
+Consider supporting me if you like my work:
 
-<a href='https://ko-fi.com/U7U8AE997'><img height='36' src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a> <a href="https://www.patreon.com/abdnh"><img height='36' src="https://i.imgur.com/mZBGpZ1.png"></a>
+<a href="https://github.com/sponsors/abdnh"><img height='36' src="https://i.imgur.com/dAgtzcC.png"></a>
+<a href="https://www.patreon.com/abdnh"><img height='36' src="https://i.imgur.com/mZBGpZ1.png"></a>
+<a href='https://ko-fi.com/abdnh'><img height='36' src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
-I'm also available for freelance add-on development at Fiverr:
+I'm also available for freelance add-on development on Fiverr:
 
 <a href="https://www.fiverr.com/abd_nh/develop-an-anki-addon"><img height='36' src="https://i.imgur.com/0meG4dk.png"></a>
