@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from anki.collection import Collection, OpChanges
 from aqt import mw
 from aqt.browser.browser import Browser
