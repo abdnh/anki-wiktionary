@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 from concurrent.futures import Future
 from typing import TYPE_CHECKING
@@ -63,7 +64,10 @@ The imported dictionary will be made available for use in the add-on's main dial
         self.form.filenameLabel.setText(filename)
         name_match = re.search(r"kaikki.org-dictionary-(.*?)\.", filename)
         if name_match:
-            self.form.dictionaryNameLineEdit.setText(name_match.group(1))
+            name = name_match.group(1)
+        else:
+            name, _ = os.path.splitext(os.path.basename(filename))
+        self.form.dictionaryNameLineEdit.setText(name)
 
     def on_add(self) -> None:
         want_cancel = False
