@@ -7,4 +7,4 @@ mypy==0.961
 black==22.6.0
 pylint==2.14.4
 isort==5.10.1
-ankibuild @ git+https://github.com/abdnh/ankibuild@623a20b2c3b40ca1a6ea5b1cd10262ae1545d94d#egg=ankibuild[qt5,qt6]
+ankibuild @ git+https://github.com/abdnh/ankibuild@d986a15c247981eccad651dd7f769331ea1092ea#egg=ankibuild[qt5,qt6]
