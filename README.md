@@ -18,9 +18,9 @@ Then in Anki, go to _Tools > Wiktionary -> Import a dictionary_ to import the di
 
 You can download the add-on from its AnkiWeb page: https://ankiweb.net/shared/info/2087444887
 
-## TODO
+## Changelog
 
-- [ ] add options to pull more kinds of data.
+See [CHANGELOG.md](./CHANGELOG.md) for a list of changes.
 
 ## Credit
 
