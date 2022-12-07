@@ -244,6 +244,8 @@ class WiktionaryFetcherDialog(QDialog):
     def _get_definitions(self, word: str) -> str:
         downloader = cast(WiktionaryFetcher, self.downloader)
         defs = downloader.get_senses(word)
+        if len(defs) == 0:
+            return ""
         if len(defs) == 1:
             return defs[0]
         formatted = "<ul>"
@@ -255,6 +257,8 @@ class WiktionaryFetcherDialog(QDialog):
     def _get_examples(self, word: str) -> str:
         downloader = cast(WiktionaryFetcher, self.downloader)
         examples = downloader.get_examples(word)
+        if len(examples) == 0:
+            return ""
         if len(examples) == 1:
             return examples[0]
         formatted = "<ul>"
@@ -286,6 +290,8 @@ class WiktionaryFetcherDialog(QDialog):
     def _get_declension(self, word: str) -> str:
         downloader = cast(WiktionaryFetcher, self.downloader)
         declensions = downloader.get_declension(word)
+        if len(declensions) == 0:
+            return ""
         formatted = "<ul>"
         for key, value in declensions.items():
             formatted += f"  <li>{key}: {', '.join(value)}</li>\r\n"
