@@ -51,6 +51,10 @@ class WiktionaryFetcherDialog(QDialog):
             self.form.exampleFieldComboBox,
             self.form.genderFieldComboBox,
             self.form.POSFieldComboBox,
+            self.form.IPAFieldComboBox,
+            self.form.audioFieldComboBox,
+            self.form.etymologyFieldComboBox,
+            self.form.declensionFieldComboBox,
         ]
         self.setWindowTitle(consts.ADDON_NAME)
         self.form.icon.setPixmap(
@@ -98,6 +102,10 @@ class WiktionaryFetcherDialog(QDialog):
         "example_field",
         "gender_field",
         "part_of_speech_field",
+        "ipa_field",
+        "audio_field",
+        "etymology_field",
+        "declension_field",
     )
 
     def set_last_used_settings(self) -> None:
@@ -149,11 +157,19 @@ class WiktionaryFetcherDialog(QDialog):
         example_field_i = self.form.exampleFieldComboBox.currentIndex()
         gender_field_i = self.form.genderFieldComboBox.currentIndex()
         pos_field_i = self.form.POSFieldComboBox.currentIndex()
+        ipa_field_i = self.form.IPAFieldComboBox.currentIndex()
+        audio_field_i = self.form.audioFieldComboBox.currentIndex()
+        etymology_field_i = self.form.etymologyFieldComboBox.currentIndex()
+        declension_field_i = self.form.declensionFieldComboBox.currentIndex()
         field_tuples = (
             (definition_field_i, self._get_definitions),
             (example_field_i, self._get_examples),
             (gender_field_i, self._get_gender),
             (pos_field_i, self._get_part_of_speech),
+            (ipa_field_i, self._get_ipa),
+            (audio_field_i, self._get_audio),
+            (etymology_field_i, self._get_etymology),
+            (declension_field_i, self._get_declension),
         )
 
         def on_success(ret: Any) -> None:
@@ -254,3 +270,24 @@ class WiktionaryFetcherDialog(QDialog):
     def _get_part_of_speech(self, word: str) -> str:
         downloader = cast(WiktionaryFetcher, self.downloader)
         return downloader.get_part_of_speech(word)
+
+    def _get_ipa(self, word: str) -> str:
+        downloader = cast(WiktionaryFetcher, self.downloader)
+        return downloader.get_ipa(word)
+
+    def _get_audio(self, word: str) -> str:
+        downloader = cast(WiktionaryFetcher, self.downloader)
+        return downloader.get_audio(word)
+
+    def _get_etymology(self, word: str) -> str:
+        downloader = cast(WiktionaryFetcher, self.downloader)
+        return downloader.get_etymology(word)
+
+    def _get_declension(self, word: str) -> str:
+        downloader = cast(WiktionaryFetcher, self.downloader)
+        declensions = downloader.get_declension(word)
+        formatted = "<ul>"
+        for key, value in declensions.items():
+            formatted += f"  <li>{key}: {', '.join(value)}</li>\r\n"
+        formatted += "</ul>"
+        return formatted

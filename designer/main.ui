@@ -91,7 +91,59 @@
      <item row="6" column="1">
       <widget class="QComboBox" name="POSFieldComboBox"/>
      </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>&amp;IPA</string>
+       </property>
+       <property name="buddy">
+        <cstring>IPAFieldComboBox</cstring>
+       </property>
+      </widget>
+     </item>
      <item row="7" column="1">
+      <widget class="QComboBox" name="IPAFieldComboBox"/>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>&amp;Audio</string>
+       </property>
+       <property name="buddy">
+        <cstring>audioFieldComboBox</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QComboBox" name="audioFieldComboBox"/>
+     </item>
+     <item row="9" column="0">
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>&amp;Etymology</string>
+       </property>
+       <property name="buddy">
+        <cstring>etymologyFieldComboBox</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="1">
+      <widget class="QComboBox" name="etymologyFieldComboBox"/>
+     </item>
+     <item row="10" column="0">
+      <widget class="QLabel" name="label_9">
+       <property name="text">
+        <string>&amp;Declension</string>
+       </property>
+       <property name="buddy">
+        <cstring>declensionFieldComboBox</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="1">
+      <widget class="QComboBox" name="declensionFieldComboBox"/>
+     </item>
+     <item row="11" column="1">
       <widget class="QPushButton" name="addButton">
        <property name="text">
         <string>Add</string>
@@ -99,7 +151,7 @@
       </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="label_6">
+      <widget class="QLabel" name="label_10">
        <property name="text">
         <string>&amp;Dictionary</string>
        </property>
@@ -119,6 +171,11 @@
   <tabstop>wordFieldComboBox</tabstop>
   <tabstop>definitionFieldComboBox</tabstop>
   <tabstop>exampleFieldComboBox</tabstop>
+  <tabstop>POSFieldComboBox</tabstop>
+  <tabstop>IPAFieldComboBox</tabstop>
+  <tabstop>audioFieldComboBox</tabstop>
+  <tabstop>etymologyFieldComboBox</tabstop>
+  <tabstop>declensionFieldComboBox</tabstop>
   <tabstop>addButton</tabstop>
  </tabstops>
  <resources/>

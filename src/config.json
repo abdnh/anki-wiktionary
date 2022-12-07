@@ -6,5 +6,9 @@
     "definition_field": "",
     "example_field": "",
     "gender_field": "",
-    "part_of_speech_field": ""
+    "part_of_speech_field": "",
+    "ipa_field": "",
+    "audio_field": "",
+    "etymology_field": "",
+    "declension_field": ""
 }

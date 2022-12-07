@@ -85,7 +85,11 @@ class WiktionaryFetcher:
     def get_gender(self, word: str) -> str:
         genders = {"feminine", "masculine", "neuter"}
         data = self.get_word_json(word)
-        forms = data.get("forms", [])
+        if (data.get("lang_code") == "de"):
+            # key for gender in the German dictionary is different
+            forms = data.get("senses", [])
+        else:
+            forms = data.get("forms", [])
         # FIXME: do we need to return the form too along with the gender? and can different forms have different genders?
         for form in forms:
             for gender in genders:
@@ -97,6 +101,51 @@ class WiktionaryFetcher:
         data = self.get_word_json(word)
         return data.get("pos", "")
 
+    def get_ipa(self, word: str) -> str:
+        data = self.get_word_json(word)
+        sounds = data.get("sounds", [])
+        for sound in sounds:
+            if sound.get("ipa"):
+                return sound["ipa"]
+        return ""
+
+    def get_audio(self, word: str) -> str:
+        data = self.get_word_json(word)
+        sounds = data.get("sounds", [])
+        for sound in sounds:
+            if sound.get("ogg_url"):
+                return sound["ogg_url"]
+        return ""
+
+    def get_etymology(self, word: str) -> str:
+        data = self.get_word_json(word)
+        return data.get("etymology_text", "")
+
+    # "declension": forms in the declension table
+    def get_declension(self, word: str) -> dict[str, set[str]]:
+        declensions = {}
+
+        data = self.get_word_json(word)
+        forms = data.get("forms", [])
+        prev_tags = []
+
+        for form in forms:
+            if type(form.get("source")) == str and form.get(
+                    "source").lower() == "declension":
+
+                # "table-tags" and "inflection-template" seems like useless stuffs
+                useless_tags = ["table-tags", "inflection-template"]
+                for useless_tag in useless_tags:
+                    if useless_tag in form.get("tags"):
+                        break
+
+                else:
+                    # append {"tags": "form"} to `declensions`
+                    key = ", ".join(form.get("tags"))
+                    value = form.get("form")
+                    declensions.update({key: declensions.get(key, []) + [value]})
+
+        return declensions
 
 if __name__ == "__main__":
     dictionary = WiktionaryFetcher("Russian")
