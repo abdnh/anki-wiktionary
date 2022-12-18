@@ -56,6 +56,8 @@ class WiktionaryFetcher:
     @staticmethod
     @functools.lru_cache
     def _get_word_json(dict_dir: Path, word: str) -> dict:
+        # TODO: handle words with multiple word senses
+
         try:
             with open(dict_dir / f"{word}.json", encoding="utf-8") as file:
                 return json.load(file)
@@ -83,18 +85,24 @@ class WiktionaryFetcher:
         return examples
 
     def get_gender(self, word: str) -> str:
-        genders = {"feminine", "masculine", "neuter"}
+        genders = {"feminine", "masculine", "neuter", "common-gender"}
         data = self.get_word_json(word)
-        if (data.get("lang_code") == "de"):
-            # key for gender in the German dictionary is different
-            forms = data.get("senses", [])
-        else:
-            forms = data.get("forms", [])
+        # forms = data.get("senses", []) + data.get("forms", [])
+        senses = data.get("senses", [])
         # FIXME: do we need to return the form too along with the gender? and can different forms have different genders?
-        for form in forms:
+        for form in senses:
             for gender in genders:
                 if gender in form.get("tags", []):
                     return gender
+
+        # Latin words have their genders in "forms"
+        forms = data.get("forms", [])
+        for form in forms:
+            for gender in genders:
+                tags = form.get("tags", [])
+                if gender in tags and "canonical" in tags:
+                    return gender
+
         return ""
 
     def get_part_of_speech(self, word: str) -> str:
@@ -127,7 +135,6 @@ class WiktionaryFetcher:
 
         data = self.get_word_json(word)
         forms = data.get("forms", [])
-        prev_tags = []
 
         for form in forms:
             if type(form.get("source")) == str and form.get(

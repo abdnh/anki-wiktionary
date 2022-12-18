@@ -294,6 +294,6 @@ class WiktionaryFetcherDialog(QDialog):
             return ""
         formatted = "<ul>"
         for key, value in declensions.items():
-            formatted += f"  <li>{key}: {', '.join(value)}</li>\r\n"
+            formatted += f"<li>{key}: {', '.join(value)}</li>"
         formatted += "</ul>"
         return formatted
