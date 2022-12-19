@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import time
+import requests
 from typing import TYPE_CHECKING, Any, Callable, cast
 
 try:
@@ -281,7 +282,19 @@ class WiktionaryFetcherDialog(QDialog):
 
     def _get_audio(self, word: str) -> str:
         downloader = cast(WiktionaryFetcher, self.downloader)
-        return downloader.get_audio(word)
+        url = downloader.get_audio_url(word)
+
+        http_session = requests.Session()
+        # https://meta.wikimedia.org/wiki/User-Agent_policy
+        headers = {"User-Agent": "Mozilla/5.0 (compatible; Anki Wiktionary add-on, https://github.com/s03311251/anki-wiktionary)"}
+        try:
+            with http_session.get(url, headers=headers, timeout=30) as response:
+                response.raise_for_status()
+                data = response.content
+        except Exception:
+            return ""
+        filename = self.mw.col.media.write_data(os.path.basename(url), data)
+        return "[sound:" + filename + "]"
 
     def _get_etymology(self, word: str) -> str:
         downloader = cast(WiktionaryFetcher, self.downloader)

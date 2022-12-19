@@ -117,7 +117,7 @@ class WiktionaryFetcher:
                 return sound["ipa"]
         return ""
 
-    def get_audio(self, word: str) -> str:
+    def get_audio_url(self, word: str) -> str:
         data = self.get_word_json(word)
         sounds = data.get("sounds", [])
         for sound in sounds:
