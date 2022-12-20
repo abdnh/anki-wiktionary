@@ -222,8 +222,10 @@ class WiktionaryFetcherDialog(QDialog):
                 max=len(self.notes),
             )
 
-        for i, note in enumerate(self.notes):
+        for note in self.notes:
             word = strip_html(note[word_field]).strip()
+            if not word:
+                continue
             need_updating = False
             try:
                 for field_tuple in field_tuples:
