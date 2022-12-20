@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import time
+import requests
 from typing import TYPE_CHECKING, Any, Callable, cast
 
 try:
@@ -51,6 +52,10 @@ class WiktionaryFetcherDialog(QDialog):
             self.form.exampleFieldComboBox,
             self.form.genderFieldComboBox,
             self.form.POSFieldComboBox,
+            self.form.IPAFieldComboBox,
+            self.form.audioFieldComboBox,
+            self.form.etymologyFieldComboBox,
+            self.form.declensionFieldComboBox,
         ]
         self.setWindowTitle(consts.ADDON_NAME)
         self.form.icon.setPixmap(
@@ -98,6 +103,10 @@ class WiktionaryFetcherDialog(QDialog):
         "example_field",
         "gender_field",
         "part_of_speech_field",
+        "ipa_field",
+        "audio_field",
+        "etymology_field",
+        "declension_field",
     )
 
     def set_last_used_settings(self) -> None:
@@ -149,11 +158,19 @@ class WiktionaryFetcherDialog(QDialog):
         example_field_i = self.form.exampleFieldComboBox.currentIndex()
         gender_field_i = self.form.genderFieldComboBox.currentIndex()
         pos_field_i = self.form.POSFieldComboBox.currentIndex()
+        ipa_field_i = self.form.IPAFieldComboBox.currentIndex()
+        audio_field_i = self.form.audioFieldComboBox.currentIndex()
+        etymology_field_i = self.form.etymologyFieldComboBox.currentIndex()
+        declension_field_i = self.form.declensionFieldComboBox.currentIndex()
         field_tuples = (
             (definition_field_i, self._get_definitions),
             (example_field_i, self._get_examples),
             (gender_field_i, self._get_gender),
             (pos_field_i, self._get_part_of_speech),
+            (ipa_field_i, self._get_ipa),
+            (audio_field_i, self._get_audio),
+            (etymology_field_i, self._get_etymology),
+            (declension_field_i, self._get_declension),
         )
 
         def on_success(ret: Any) -> None:
@@ -228,6 +245,8 @@ class WiktionaryFetcherDialog(QDialog):
     def _get_definitions(self, word: str) -> str:
         downloader = cast(WiktionaryFetcher, self.downloader)
         defs = downloader.get_senses(word)
+        if len(defs) == 0:
+            return ""
         if len(defs) == 1:
             return defs[0]
         formatted = "<ul>"
@@ -239,6 +258,8 @@ class WiktionaryFetcherDialog(QDialog):
     def _get_examples(self, word: str) -> str:
         downloader = cast(WiktionaryFetcher, self.downloader)
         examples = downloader.get_examples(word)
+        if len(examples) == 0:
+            return ""
         if len(examples) == 1:
             return examples[0]
         formatted = "<ul>"
@@ -254,3 +275,38 @@ class WiktionaryFetcherDialog(QDialog):
     def _get_part_of_speech(self, word: str) -> str:
         downloader = cast(WiktionaryFetcher, self.downloader)
         return downloader.get_part_of_speech(word)
+
+    def _get_ipa(self, word: str) -> str:
+        downloader = cast(WiktionaryFetcher, self.downloader)
+        return downloader.get_ipa(word)
+
+    def _get_audio(self, word: str) -> str:
+        downloader = cast(WiktionaryFetcher, self.downloader)
+        url = downloader.get_audio_url(word)
+
+        http_session = requests.Session()
+        # https://meta.wikimedia.org/wiki/User-Agent_policy
+        headers = {"User-Agent": "Mozilla/5.0 (compatible; Anki Wiktionary add-on, https://github.com/s03311251/anki-wiktionary)"}
+        try:
+            with http_session.get(url, headers=headers, timeout=30) as response:
+                response.raise_for_status()
+                data = response.content
+        except Exception:
+            return ""
+        filename = self.mw.col.media.write_data(os.path.basename(url), data)
+        return "[sound:" + filename + "]"
+
+    def _get_etymology(self, word: str) -> str:
+        downloader = cast(WiktionaryFetcher, self.downloader)
+        return downloader.get_etymology(word)
+
+    def _get_declension(self, word: str) -> str:
+        downloader = cast(WiktionaryFetcher, self.downloader)
+        declensions = downloader.get_declension(word)
+        if len(declensions) == 0:
+            return ""
+        formatted = "<ul>"
+        for key, value in declensions.items():
+            formatted += f"<li>{key}: {', '.join(value)}</li>"
+        formatted += "</ul>"
+        return formatted
