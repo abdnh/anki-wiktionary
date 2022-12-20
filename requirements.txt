@@ -8,3 +8,4 @@ black==22.6.0
 pylint==2.14.4
 isort==5.10.1
 ankibuild @ git+https://github.com/abdnh/ankibuild@d986a15c247981eccad651dd7f769331ea1092ea#egg=ankibuild[qt5,qt6]
+types-requests==2.28.11.5

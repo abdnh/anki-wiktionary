@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import os
 import time
-import requests
 from typing import TYPE_CHECKING, Any, Callable, cast
+
+import requests
 
 try:
     from anki.utils import strip_html
@@ -286,7 +287,9 @@ class WiktionaryFetcherDialog(QDialog):
 
         http_session = requests.Session()
         # https://meta.wikimedia.org/wiki/User-Agent_policy
-        headers = {"User-Agent": "Mozilla/5.0 (compatible; Anki Wiktionary add-on, https://github.com/s03311251/anki-wiktionary)"}
+        headers = {
+            "User-Agent": "Mozilla/5.0 (compatible; Anki Wiktionary add-on, https://github.com/s03311251/anki-wiktionary)"
+        }
         try:
             with http_session.get(url, headers=headers, timeout=30) as response:
                 response.raise_for_status()

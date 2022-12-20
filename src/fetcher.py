@@ -130,15 +130,17 @@ class WiktionaryFetcher:
         return data.get("etymology_text", "")
 
     # "declension": forms in the declension table
-    def get_declension(self, word: str) -> dict[str, set[str]]:
-        declensions = {}
+    def get_declension(self, word: str) -> dict[str, list[str]]:
+        declensions: dict[str, list[str]] = {}
 
         data = self.get_word_json(word)
         forms = data.get("forms", [])
 
         for form in forms:
-            if type(form.get("source")) == str and form.get(
-                    "source").lower() == "declension":
+            if (
+                type(form.get("source")) == str
+                and form.get("source").lower() == "declension"
+            ):
 
                 # "table-tags" and "inflection-template" seems like useless stuffs
                 useless_tags = ["table-tags", "inflection-template"]
@@ -153,6 +155,7 @@ class WiktionaryFetcher:
                     declensions.update({key: declensions.get(key, []) + [value]})
 
         return declensions
+
 
 if __name__ == "__main__":
     dictionary = WiktionaryFetcher("Russian")
