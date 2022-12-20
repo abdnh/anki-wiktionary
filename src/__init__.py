@@ -1,4 +1,5 @@
 import sys
 
-if "unittest" not in sys.modules:
+
+if "anki" in sys.modules:
     from . import main
