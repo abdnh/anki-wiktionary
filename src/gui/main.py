@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import time
 from typing import TYPE_CHECKING, Any, Callable, cast
+from urllib.parse import unquote
 
 import requests
 
@@ -296,7 +297,7 @@ class WiktionaryFetcherDialog(QDialog):
                 data = response.content
         except Exception:
             return ""
-        filename = self.mw.col.media.write_data(os.path.basename(url), data)
+        filename = self.mw.col.media.write_data(unquote(os.path.basename(url)), data)
         return "[sound:" + filename + "]"
 
     def _get_etymology(self, word: str) -> str:
