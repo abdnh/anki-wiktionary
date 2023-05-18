@@ -71,7 +71,7 @@ class WiktionaryFetcher:
 
     def get_senses(self, word: str) -> list[str]:
         data = self.get_word_json(word)
-        return ["\n".join(d.get("raw_glosses", [])) for d in data.get("senses", [])]
+        return ["\n".join(d.get("raw_glosses", d.get("glosses", []))) for d in data.get("senses", [])]
 
     def get_examples(self, word: str) -> list[str]:
         data = self.get_word_json(word)
