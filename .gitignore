@@ -1,15 +1,12 @@
-# Python
-venv/
 __pycache__/
-
-# Anki
+venv/
+.mypy_cache/
 ankidata/
 build/
-src/user_files/*/
+src/manifest.json
 src/meta.json
 src/forms/
-src/manifest.json
-
-# Misc
+src/user_files/*/
+src/vendor/
 TODO.md
 samples/

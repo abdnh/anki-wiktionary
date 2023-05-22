@@ -42,7 +42,10 @@ def on_browser_action_triggered(browser: Browser) -> None:
             col.update_notes(updated_notes)
             return col.merge_undo_entries(pos)
 
-        CollectionOp(parent=browser, op=op,).success(
+        CollectionOp(
+            parent=browser,
+            op=op,
+        ).success(
             lambda out: on_bulk_updated_notes(browser, errors, len(updated_notes)),
         ).run_in_background()
 

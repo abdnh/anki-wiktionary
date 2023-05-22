@@ -71,7 +71,10 @@ class WiktionaryFetcher:
 
     def get_senses(self, word: str) -> list[str]:
         data = self.get_word_json(word)
-        return ["\n".join(d.get("raw_glosses", d.get("glosses", []))) for d in data.get("senses", [])]
+        return [
+            "\n".join(d.get("raw_glosses", d.get("glosses", [])))
+            for d in data.get("senses", [])
+        ]
 
     def get_examples(self, word: str) -> list[str]:
         data = self.get_word_json(word)
@@ -138,10 +141,9 @@ class WiktionaryFetcher:
 
         for form in forms:
             if (
-                type(form.get("source")) == str
+                isinstance(form.get("source"), str)
                 and form.get("source").lower() == "declension"
             ):
-
                 # "table-tags" and "inflection-template" seems like useless stuffs
                 useless_tags = ["table-tags", "inflection-template"]
                 for useless_tag in useless_tags:

@@ -25,7 +25,7 @@ from ..fetcher import WiktionaryFetcher, WordNotFoundError
 if TYPE_CHECKING or qtmajor > 5:
     from ..forms.main_qt6 import Ui_Dialog
 else:
-    from ..forms.main_qt5 import Ui_Dialog  # type: ignore
+    from ..forms.main_qt5 import Ui_Dialog
 
 
 PROGRESS_LABEL = "Updated {count} out of {total} note(s)"
