@@ -81,6 +81,7 @@ def on_editor_did_init_buttons(buttons: list[str], editor: Editor) -> None:
         tip=f"{consts.ADDON_NAME} ({shortcut})" if shortcut else consts.ADDON_NAME,
         func=on_editor_button_clicked,
         keys=shortcut,
+        disables=False,
     )
     buttons.append(button)
 
