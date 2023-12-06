@@ -9,11 +9,12 @@ from typing import TYPE_CHECKING
 
 from aqt import qtmajor
 from aqt.main import AnkiQt
-from aqt.qt import QDialog, QKeySequence, qconnect
+from aqt.qt import QKeySequence, qconnect
 from aqt.utils import getFile, openLink, showWarning, tooltip
 
 from ..consts import consts
 from ..fetcher import WiktionaryFetcher
+from ..gui.dialog import Dialog
 
 if TYPE_CHECKING or qtmajor > 5:
     from ..forms.importer_qt6 import Ui_Dialog
@@ -21,19 +22,20 @@ else:
     from ..forms.importer_qt5 import Ui_Dialog  # type: ignore
 
 
-class ImportDictionaryDialog(QDialog):
+class ImportDictionaryDialog(Dialog):
+    key = "importer"
+
     def __init__(
         self,
         mw: AnkiQt,
     ):
-        super().__init__(mw)
-        self.form = Ui_Dialog()
-        self.form.setupUi(self)
         self.mw = mw
+        super().__init__(mw)
         self.errors: list[str] = []
-        self.setup_ui()
 
     def setup_ui(self) -> None:
+        self.form = Ui_Dialog()
+        self.form.setupUi(self)
         qconnect(
             self.form.chooseFileButton.clicked,
             self.on_choose_file,
@@ -52,6 +54,7 @@ The imported dictionary will be made available for use in the add-on's main dial
             self.form.description.linkActivated,
             lambda link: openLink(link),  # pylint: disable=unnecessary-lambda
         )
+        super().setup_ui()
 
     def on_choose_file(self) -> None:
         filename = getFile(

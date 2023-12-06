@@ -22,6 +22,7 @@ from aqt.utils import showWarning
 from ..consts import consts
 from ..fetcher import WiktionaryFetcher, WordNotFoundError
 from ..utils import get_dict_names
+from .dialog import Dialog
 
 if TYPE_CHECKING or qtmajor > 5:
     from ..forms.main_qt6 import Ui_Dialog
@@ -33,19 +34,23 @@ PROGRESS_LABEL = "Updated {count} out of {total} note(s)"
 
 
 # pylint: disable=too-many-instance-attributes
-class WiktionaryFetcherDialog(QDialog):
+class WiktionaryFetcherDialog(Dialog):
+    key = "fetcher"
+
     def __init__(
         self,
         mw: AnkiQt,
         parent: QWidget,
         notes: list[Note],
     ):
-        super().__init__(parent)
-        self.form = Ui_Dialog()
-        self.form.setupUi(self)
         self.mw = mw
+        super().__init__(parent)
         self.config = mw.addonManager.getConfig(__name__)
         self.notes = notes
+
+    def setup_ui(self) -> None:
+        self.form = Ui_Dialog()
+        self.form.setupUi(self)
         self.combos = [
             self.form.wordFieldComboBox,
             self.form.definitionFieldComboBox,
@@ -66,6 +71,7 @@ class WiktionaryFetcherDialog(QDialog):
         qconnect(self.form.addButton.clicked, self.on_add)
         self.form.addButton.setShortcut(QKeySequence("Ctrl+Return"))
         qconnect(self.finished, self.on_finished)
+        super().setup_ui()
 
     def exec(self) -> int:
         if self._fill_fields():
