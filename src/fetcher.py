@@ -5,8 +5,6 @@ import json
 from pathlib import Path
 from typing import Callable
 
-from . import consts
-
 
 class WiktionaryError(Exception):
     pass
@@ -17,7 +15,7 @@ class WordNotFoundError(WiktionaryError):
 
 
 class WiktionaryFetcher:
-    def __init__(self, dictionary: str, base_dir: Path = consts.USER_FILES):
+    def __init__(self, dictionary: str, base_dir: Path):
         self.dict_dir = base_dir / dictionary
 
     @classmethod
@@ -27,7 +25,7 @@ class WiktionaryFetcher:
         dictionary: str,
         on_progress: Callable[[int], bool],
         on_error: Callable[[str, Exception], None],
-        base_dir: Path = consts.USER_FILES,
+        base_dir: Path,
     ) -> int:
         """Dumps a JSON file downloaded from https://kaikki.org/dictionary/{lang}/
         to separate files for each entry in 'dictionary'"""
@@ -160,7 +158,7 @@ class WiktionaryFetcher:
 
 
 if __name__ == "__main__":
-    dictionary = WiktionaryFetcher("Russian")
+    dictionary = WiktionaryFetcher("Russian", Path("dictionaries"))
     words = ["кошка"]
     for word in words:
         print(dictionary.get_senses(word))

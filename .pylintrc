@@ -1,6 +1,6 @@
 [MASTER]
 extension-pkg-whitelist=PyQt6,PyQt5
-ignore = venv|ankidata|vendor|forms|user_files
+ignore = venv,ankidata,vendor,forms,user_files,build
 
 [REPORTS]
 output-format=colorized

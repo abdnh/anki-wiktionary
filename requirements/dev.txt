@@ -1,0 +1,230 @@
+anki==23.10.1
+    # via aqt
+ankiscripts @ git+https://github.com/abdnh/ankiscripts@799759b4a7ea3c89cf4b6f50a695eb92383273f7
+    # via -r requirements/dev.in
+ankiutils @ git+https://github.com/abdnh/ankiutils@b5c5dfd2a16446781cc2de06fdbd019cfa733c94
+    # via -r requirements\bundle.in
+aqt==23.10.1
+    # via -r requirements/dev.in
+astroid==3.0.1
+    # via pylint
+attrs==23.1.0
+    # via
+    #   jsonschema
+    #   referencing
+beautifulsoup4==4.12.2
+    # via
+    #   anki
+    #   aqt
+black==23.11.0
+    # via -r requirements/dev.in
+blinker==1.7.0
+    # via flask
+build==1.0.3
+    # via pip-tools
+certifi==2023.11.17
+    # via requests
+cfgv==3.4.0
+    # via pre-commit
+charset-normalizer==3.3.2
+    # via requests
+click==8.1.7
+    # via
+    #   black
+    #   flask
+    #   pip-tools
+colorama==0.4.6
+    # via
+    #   build
+    #   click
+    #   pylint
+    #   pytest
+coverage==7.3.2
+    # via
+    #   coverage
+    #   pytest-cov
+decorator==5.1.1
+    # via anki
+dill==0.3.7
+    # via pylint
+distlib==0.3.7
+    # via virtualenv
+exceptiongroup==1.2.0
+    # via pytest
+filelock==3.13.1
+    # via virtualenv
+flask==3.0.0
+    # via
+    #   aqt
+    #   flask-cors
+flask-cors==4.0.0
+    # via aqt
+identify==2.5.32
+    # via pre-commit
+idna==3.6
+    # via requests
+importlib-metadata==7.0.0
+    # via
+    #   build
+    #   flask
+    #   markdown
+iniconfig==2.0.0
+    # via pytest
+isort==5.12.0
+    # via
+    #   -r requirements/dev.in
+    #   pylint
+itsdangerous==2.1.2
+    # via flask
+jinja2==3.1.2
+    # via flask
+jsonschema==4.20.0
+    # via
+    #   ankiscripts
+    #   aqt
+jsonschema-specifications==2023.11.2
+    # via jsonschema
+markdown==3.5.1
+    # via anki
+markupsafe==2.1.3
+    # via
+    #   jinja2
+    #   werkzeug
+mccabe==0.7.0
+    # via pylint
+mypy==1.7.1
+    # via -r requirements/dev.in
+mypy-extensions==1.0.0
+    # via
+    #   black
+    #   mypy
+nodeenv==1.8.0
+    # via pre-commit
+orjson==3.9.10
+    # via anki
+packaging==23.2
+    # via
+    #   black
+    #   build
+    #   pytest
+pathspec==0.11.2
+    # via black
+pip-tools==7.3.0
+    # via -r requirements\base.in
+platformdirs==4.1.0
+    # via
+    #   black
+    #   pylint
+    #   virtualenv
+pluggy==1.3.0
+    # via pytest
+pre-commit==3.5.0
+    # via -r requirements/dev.in
+prompt-toolkit==3.0.36
+    # via questionary
+protobuf==4.25.1
+    # via anki
+psutil==5.9.6 ; sys_platform == "win32"
+    # via
+    #   -r requirements/dev.in
+    #   anki
+    #   aqt
+pylint==3.0.2
+    # via -r requirements/dev.in
+pyproject-hooks==1.0.0
+    # via build
+pyqt6==6.6.1
+    # via
+    #   ankiscripts
+    #   aqt
+    #   pyqt6-webengine
+pyqt6-qt6==6.6.1
+    # via pyqt6
+pyqt6-sip==13.6.0
+    # via
+    #   pyqt6
+    #   pyqt6-webengine
+pyqt6-webengine==6.6.0
+    # via aqt
+pyqt6-webengine-qt6==6.6.1
+    # via pyqt6-webengine
+pysocks==1.7.1
+    # via requests
+pytest==7.4.3
+    # via
+    #   -r requirements/dev.in
+    #   pytest-cov
+pytest-cov==4.1.0
+    # via -r requirements/dev.in
+pyupgrade==3.15.0
+    # via -r requirements/dev.in
+pywin32==306 ; sys_platform == "win32"
+    # via
+    #   -r requirements/dev.in
+    #   aqt
+pyyaml==6.0.1
+    # via pre-commit
+questionary==2.0.1
+    # via ankiscripts
+referencing==0.31.1
+    # via
+    #   jsonschema
+    #   jsonschema-specifications
+requests==2.31.0
+    # via
+    #   anki
+    #   aqt
+rpds-py==0.13.2
+    # via
+    #   jsonschema
+    #   referencing
+send2trash==1.8.2
+    # via aqt
+soupsieve==2.5
+    # via beautifulsoup4
+tokenize-rt==5.2.0
+    # via pyupgrade
+tomli==2.0.1
+    # via
+    #   black
+    #   build
+    #   coverage
+    #   mypy
+    #   pip-tools
+    #   pylint
+    #   pyproject-hooks
+    #   pytest
+tomlkit==0.12.3
+    # via pylint
+types-requests==2.31.0.10
+    # via -r requirements/dev.in
+typing-extensions==4.8.0
+    # via
+    #   astroid
+    #   black
+    #   mypy
+    #   pylint
+urllib3==2.1.0
+    # via
+    #   requests
+    #   types-requests
+virtualenv==20.25.0
+    # via pre-commit
+waitress==2.1.2
+    # via aqt
+wcwidth==0.2.12
+    # via prompt-toolkit
+werkzeug==3.0.1
+    # via flask
+wheel==0.42.0
+    # via pip-tools
+zipp==3.17.0
+    # via importlib-metadata
+
+# The following packages are considered to be unsafe in a requirements file:
+pip==23.3.1
+    # via pip-tools
+setuptools==69.0.2
+    # via
+    #   nodeenv
+    #   pip-tools

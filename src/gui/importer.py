@@ -10,7 +10,7 @@ from aqt.main import AnkiQt
 from aqt.qt import QDialog, QKeySequence, qconnect
 from aqt.utils import getFile, openLink, showWarning, tooltip
 
-from .. import consts
+from ..consts import consts
 from ..fetcher import WiktionaryFetcher
 
 if TYPE_CHECKING or qtmajor > 5:
@@ -54,9 +54,9 @@ The imported dictionary will be made available for use in the add-on's main dial
     def on_choose_file(self) -> None:
         filename = getFile(
             self,
-            title=consts.ADDON_NAME,
+            title=consts.name,
             cb=None,
-            key=consts.ADDON_NAME,
+            key=consts.name,
         )
         if not filename:
             return
@@ -89,7 +89,7 @@ The imported dictionary will be made available for use in the add-on's main dial
             try:
                 count = future.result()
             except Exception as exc:
-                showWarning(str(exc), parent=self, title=consts.ADDON_NAME)
+                showWarning(str(exc), parent=self, title=consts.name)
                 return
             tooltip(f"Successfully imported {count} words", parent=self.mw)
             self.accept()
@@ -100,7 +100,7 @@ The imported dictionary will be made available for use in the add-on's main dial
             showWarning("Filename and dictionary name fields cannot be empty")
             return
         self.mw.progress.start(label="Starting importing...", parent=self)
-        self.mw.progress.set_title(f"{consts.ADDON_NAME} - Importing a dictionary")
+        self.mw.progress.set_title(f"{consts.name} - Importing a dictionary")
         # TODO: handle exceptions
         self.mw.taskman.run_in_background(
             lambda: WiktionaryFetcher.dump_kaikki_dict(

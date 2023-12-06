@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import sys
+
 from anki.collection import Collection, OpChanges
 from aqt import mw
 from aqt.browser.browser import Browser
@@ -9,9 +11,11 @@ from aqt.operations import CollectionOp
 from aqt.qt import *
 from aqt.utils import showText, showWarning, tooltip
 
-from . import consts
+sys.path.append(os.path.join(os.path.dirname(__file__), "vendor"))
+from .consts import consts
 from .gui.importer import ImportDictionaryDialog
 from .gui.main import WiktionaryFetcherDialog
+from .log import logger
 
 
 def on_bulk_updated_notes(
@@ -20,12 +24,12 @@ def on_bulk_updated_notes(
     if updated_count:
         tooltip(f"Updated {updated_count} note(s).", period=5000, parent=browser)
     if len(errors) == 1:
-        showWarning(errors[0], parent=browser, title=consts.ADDON_NAME)
+        showWarning(errors[0], parent=browser, title=consts.name)
     elif errors:
         msg = ""
         msg += " The following issues happened during the process:\n"
         msg += "\n".join(errors)
-        showText(msg, parent=browser, title=consts.ADDON_NAME, copyBtn=True)
+        showText(msg, parent=browser, title=consts.name, copyBtn=True)
 
 
 def on_browser_action_triggered(browser: Browser) -> None:
@@ -67,7 +71,7 @@ def on_editor_button_clicked(editor: Editor) -> None:
             showWarning(
                 "\n".join(dialog.errors),
                 parent=editor.parentWindow,
-                title=consts.ADDON_NAME,
+                title=consts.name,
             )
         editor.loadNoteKeepingFocus()
 
@@ -78,9 +82,9 @@ def on_editor_did_init_buttons(buttons: list[str], editor: Editor) -> None:
         QKeySequence.SequenceFormat.NativeText
     )
     button = editor.addButton(
-        icon=os.path.join(consts.ICONS_DIR, "en.ico"),
+        icon=os.path.join(consts.dir, "icons", "en.ico"),
         cmd="wiktionary",
-        tip=f"{consts.ADDON_NAME} ({shortcut})" if shortcut else consts.ADDON_NAME,
+        tip=f"{consts.name} ({shortcut})" if shortcut else consts.name,
         func=on_editor_button_clicked,
         keys=shortcut,
         disables=False,
@@ -100,7 +104,7 @@ def on_import_dictionary() -> None:
 
 
 def add_wiktionary_menu() -> None:
-    menu = QMenu(consts.ADDON_NAME, mw)
+    menu = QMenu(consts.name, mw)
     action = QAction(menu)
     action.setText("Import a dictionary")
     qconnect(action.triggered, on_import_dictionary)

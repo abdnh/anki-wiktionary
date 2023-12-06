@@ -1,6 +1,3 @@
-from pathlib import Path
+from ankiutils.consts import get_consts
 
-ADDON_NAME = "Wiktionary"
-ADDON_DIR = Path(__file__).resolve().parent
-ICONS_DIR = ADDON_DIR / "icons"
-USER_FILES = ADDON_DIR / "user_files"
+consts = get_consts(__name__)

@@ -1,0 +1,3 @@
+-   `editor_shortcut`: Editor shortcut to open the add-on's dialog.
+-   `browser_shortcut`: Browser shortcut to open the add-on's dialog.
+-   The other options ending with \*\_field are used to save your configured fields.

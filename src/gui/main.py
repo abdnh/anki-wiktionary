@@ -10,7 +10,7 @@ import requests
 try:
     from anki.utils import strip_html
 except ImportError:
-    from anki.utils import stripHTML as strip_html
+    from anki.utils import stripHTML as strip_html  # type: ignore
 
 from anki.notes import Note
 from aqt import qtmajor
@@ -19,7 +19,7 @@ from aqt.operations import QueryOp
 from aqt.qt import QDialog, QKeySequence, QPixmap, QWidget, qconnect
 from aqt.utils import showWarning
 
-from .. import consts
+from ..consts import consts
 from ..fetcher import WiktionaryFetcher, WordNotFoundError
 
 if TYPE_CHECKING or qtmajor > 5:
@@ -32,7 +32,7 @@ PROGRESS_LABEL = "Updated {count} out of {total} note(s)"
 
 
 def get_available_dicts() -> list[str]:
-    return [p.name for p in consts.USER_FILES.iterdir() if p.is_dir()]
+    return [p.name for p in (consts.dir / "user_files").iterdir() if p.is_dir()]
 
 
 class WiktionaryFetcherDialog(QDialog):
@@ -59,9 +59,9 @@ class WiktionaryFetcherDialog(QDialog):
             self.form.etymologyFieldComboBox,
             self.form.declensionFieldComboBox,
         ]
-        self.setWindowTitle(consts.ADDON_NAME)
+        self.setWindowTitle(consts.name)
         self.form.icon.setPixmap(
-            QPixmap(os.path.join(consts.ICONS_DIR, "enwiktionary-1.5x.png"))
+            QPixmap(os.path.join(consts.dir, "icons", "enwiktionary-1.5x.png"))
         )
         self.form.dictionaryComboBox.addItems(get_available_dicts())
         self.downloader: WiktionaryFetcher | None = None
@@ -75,12 +75,12 @@ class WiktionaryFetcherDialog(QDialog):
         return QDialog.DialogCode.Rejected  # pylint: disable=no-member
 
     def _fill_fields(self) -> int:
-        mids = set(note.mid for note in self.notes)
+        mids = {note.mid for note in self.notes}
         if len(mids) > 1:
             showWarning(
                 "Please select notes from only one notetype.",
                 parent=self,
-                title=consts.ADDON_NAME,
+                title=consts.name,
             )
             return 0
         self.field_names = ["None"] + self.notes[0].keys()
@@ -145,7 +145,7 @@ class WiktionaryFetcherDialog(QDialog):
 
     def on_add(self) -> None:
         if self.form.wordFieldComboBox.currentIndex() == 0:
-            showWarning("No word field selected.", parent=self, title=consts.ADDON_NAME)
+            showWarning("No word field selected.", parent=self, title=consts.name)
             return
         if self.form.dictionaryComboBox.currentIndex() == -1:
             showWarning(
@@ -154,7 +154,7 @@ class WiktionaryFetcherDialog(QDialog):
             )
             return
         dictionary = self.form.dictionaryComboBox.currentText()
-        self.downloader = WiktionaryFetcher(dictionary)
+        self.downloader = WiktionaryFetcher(dictionary, consts.dir / "user_files")
         word_field = self.form.wordFieldComboBox.currentText()
         definition_field_i = self.form.definitionFieldComboBox.currentIndex()
         example_field_i = self.form.exampleFieldComboBox.currentIndex()
@@ -180,7 +180,7 @@ class WiktionaryFetcherDialog(QDialog):
 
         def on_failure(exc: Exception) -> None:
             self.mw.progress.finish()
-            showWarning(str(exc), parent=self, title=consts.ADDON_NAME)
+            showWarning(str(exc), parent=self, title=consts.name)
             self.accept()
 
         op = QueryOp(
@@ -199,7 +199,7 @@ class WiktionaryFetcherDialog(QDialog):
             parent=self,
             immediate=True,
         )
-        self.mw.progress.set_title(consts.ADDON_NAME)
+        self.mw.progress.set_title(consts.name)
 
     def _fill_notes(
         self,

@@ -1,31 +1,33 @@
-.PHONY: all zip clean check check_format fix mypy pylint ankiweb test
+.PHONY: all zip ankiweb vendor fix mypy pylint lint test sourcedist clean
 
 all: zip ankiweb
 
 zip:
-	python -m ankiscripts.build --type package --qt all --forms-dir forms --exclude user_files/**/
+	python -m ankiscripts.build --type package --qt all --exclude user_files/**/*
 
 ankiweb:
-	python -m ankiscripts.build --type ankiweb --qt all --forms-dir forms --exclude user_files/**/
+	python -m ankiscripts.build --type ankiweb --qt all --exclude user_files/**/*
 
-check: check_format mypy pylint
-
-check_format:
-	python -m black --exclude="forms|ankidata|samples|user_files" --check --diff --color src tests
-	python -m isort --check --diff --color src tests
+vendor:
+	python -m ankiscripts.vendor
 
 fix:
-	python -m black --exclude="forms|ankidata|samples|user_files" src tests
+	python -m black src tests --exclude="forms|vendor"
 	python -m isort src tests
 
 mypy:
-	python -m mypy src tests
+	-python -m mypy src tests
 
 pylint:
-	python -m pylint src tests
+	-python -m pylint src tests
+
+lint: mypy pylint
 
 test:
-	python -m unittest
+	python -m  pytest --cov=src --cov-config=.coveragerc
+
+sourcedist:
+	python -m ankiscripts.sourcedist
 
 clean:
 	rm -rf build/

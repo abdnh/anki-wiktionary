@@ -1,4 +1,4 @@
 import sys
 
-if "anki" in sys.modules:
+if "pytest" not in sys.modules:
     from . import main
