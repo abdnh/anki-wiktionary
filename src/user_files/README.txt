@@ -1,2 +1,1 @@
-Your imported dictionaries are processsed and stored here in subfolders.
-A file is generated for each dictionary entry, so the folders may contain a lot of files.
+Your imported dictionaries are processsed and stored here inside the "dictionaries" subfolder as SQLite databases.

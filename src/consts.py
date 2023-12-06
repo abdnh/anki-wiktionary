@@ -1,3 +1,21 @@
+import dataclasses
+from pathlib import Path
+
+from ankiutils.consts import AddonConsts as BaseAddonConsts
 from ankiutils.consts import get_consts
 
-consts = get_consts(__name__)
+
+@dataclasses.dataclass
+class AddonConsts(BaseAddonConsts):
+    userfiles_dir: Path
+    dicts_dir: Path
+    icons_dir: Path
+
+
+base_consts = get_consts(__name__)
+consts = AddonConsts(
+    **dataclasses.asdict(base_consts),
+    userfiles_dir=base_consts.dir / "user_files",
+    dicts_dir=base_consts.dir / "user_files" / "dictionaries",
+    icons_dir=base_consts.dir / "icons"
+)

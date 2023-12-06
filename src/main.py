@@ -16,6 +16,7 @@ from .consts import consts
 from .gui.importer import ImportDictionaryDialog
 from .gui.main import WiktionaryFetcherDialog
 from .log import logger
+from .migration import migrate_legacy_dicts
 
 
 def on_bulk_updated_notes(
@@ -82,7 +83,7 @@ def on_editor_did_init_buttons(buttons: list[str], editor: Editor) -> None:
         QKeySequence.SequenceFormat.NativeText
     )
     button = editor.addButton(
-        icon=os.path.join(consts.dir, "icons", "en.ico"),
+        icon=os.path.join(consts.icons_dir, "en.ico"),
         cmd="wiktionary",
         tip=f"{consts.name} ({shortcut})" if shortcut else consts.name,
         func=on_editor_button_clicked,
@@ -115,3 +116,4 @@ def add_wiktionary_menu() -> None:
 browser_menus_did_init.append(on_browser_menus_did_init)
 editor_did_init_buttons.append(on_editor_did_init_buttons)
 add_wiktionary_menu()
+migrate_legacy_dicts()

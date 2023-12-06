@@ -8,7 +8,7 @@ repos:
           - id: trailing-whitespace
           - id: end-of-file-fixer
           - id: check-json
-            exclude: ".vscode(.dist)?/.*"
+            exclude: "(.vscode(.dist)?/.*)|(tests/test_dict.json)"
           - id: check-yaml
           - id: check-builtin-literals
           - id: check-case-conflict

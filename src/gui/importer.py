@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import os
 import re
+import sys
+import traceback
 from concurrent.futures import Future
 from typing import TYPE_CHECKING
 
@@ -89,6 +91,7 @@ The imported dictionary will be made available for use in the add-on's main dial
             try:
                 count = future.result()
             except Exception as exc:
+                traceback.print_exception(None, exc, exc.__traceback__, file=sys.stdout)
                 showWarning(str(exc), parent=self, title=consts.name)
                 return
             tooltip(f"Successfully imported {count} words", parent=self.mw)
@@ -101,13 +104,13 @@ The imported dictionary will be made available for use in the add-on's main dial
             return
         self.mw.progress.start(label="Starting importing...", parent=self)
         self.mw.progress.set_title(f"{consts.name} - Importing a dictionary")
-        # TODO: handle exceptions
         self.mw.taskman.run_in_background(
-            lambda: WiktionaryFetcher.dump_kaikki_dict(
+            lambda: WiktionaryFetcher.import_kaikki_dict(
                 filename,
                 name,
                 on_progress=on_progress,
                 on_error=on_error,
+                base_dir=consts.dicts_dir,
             ),
             on_done=on_done,
         )

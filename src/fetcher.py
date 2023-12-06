@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import functools
 import json
+import shutil
+import sqlite3
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 
 
 class WiktionaryError(Exception):
@@ -16,10 +17,34 @@ class WordNotFoundError(WiktionaryError):
 
 class WiktionaryFetcher:
     def __init__(self, dictionary: str, base_dir: Path):
-        self.dict_dir = base_dir / dictionary
+        self.db_path = base_dir / f"{dictionary}.db"
+        self._connection = sqlite3.connect(self.db_path, check_same_thread=False)
+        self._connection.executescript(
+            """
+            CREATE TABLE IF NOT EXISTS words (
+                word text,
+                data text
+            );
+            CREATE INDEX IF NOT EXISTS index_word ON words(word);
+        """
+        )
+
+    def close(self) -> None:
+        self._connection.close()
+
+    def __enter__(self) -> WiktionaryFetcher:
+        return self
+
+    def __exit__(self, exc_type: Any, exc_value: Any, exc_tb: Any) -> None:
+        self.close()
+
+    def _add_word(self, word: str, data: str) -> None:
+        self._connection.execute(
+            "INSERT INTO words(word, data) values(?, ?)", (word, data)
+        )
 
     @classmethod
-    def dump_kaikki_dict(
+    def import_kaikki_dict(
         cls,
         filename: str | Path,
         dictionary: str,
@@ -28,44 +53,42 @@ class WiktionaryFetcher:
         base_dir: Path,
     ) -> int:
         """Dumps a JSON file downloaded from https://kaikki.org/dictionary/{lang}/
-        to separate files for each entry in 'dictionary'"""
-        outdir = base_dir / dictionary
-        outdir.mkdir(exist_ok=True)
+        to a SQLite database"""
+        base_dir.mkdir(exist_ok=True)
         count = 0
         with open(filename, encoding="utf-8") as file:
-            for i, line in enumerate(file):
-                entry = json.loads(line)
-                word = entry["word"]
-                try:
-                    with open(
-                        outdir / f"{word}.json",
-                        mode="w",
-                        encoding="utf-8",
-                    ) as outfile:
-                        outfile.write(line)
+            with WiktionaryFetcher(dictionary, base_dir) as fetcher:
+                for i, line in enumerate(file):
+                    try:
+                        entry = json.loads(line)
+                        word = entry["word"]
+                        fetcher._add_word(word, line)
                         count += 1
-                except Exception as exc:
-                    on_error(word, exc)
-                if i % 50 == 0:
-                    if not on_progress(i + 1):
-                        break
+                    except Exception as exc:
+                        print(f"{exc=}")
+                        on_error(word, exc)
+                    if i % 50 == 0:
+                        if not on_progress(i + 1):
+                            break
+                fetcher._connection.commit()
         return count
 
-    @staticmethod
-    @functools.lru_cache
-    def _get_word_json(dict_dir: Path, word: str) -> dict:
-        # TODO: handle words with multiple word senses
-
-        try:
-            with open(dict_dir / f"{word}.json", encoding="utf-8") as file:
-                return json.load(file)
-        except FileNotFoundError as exc:
-            raise WordNotFoundError(
-                f'"{word}" was not found in the dictionary.'
-            ) from exc
+    @classmethod
+    def migrate_dict_to_sqlite(cls, dictionary_dir: Path, new_dir: Path) -> None:
+        with WiktionaryFetcher(dictionary_dir.name, new_dir) as fetcher:
+            for file in dictionary_dir.iterdir():
+                fetcher._add_word(file.stem, file.read_text(encoding="utf-8"))
+            fetcher._connection.commit()
+        shutil.rmtree(dictionary_dir)
 
     def get_word_json(self, word: str) -> dict:
-        return self._get_word_json(self.dict_dir, word)
+        # TODO: handle words with multiple word senses
+        row = self._connection.execute(
+            "SELECT data FROM words WHERE word = ?", (word,)
+        ).fetchone()
+        if not row:
+            raise WordNotFoundError(f'"{word}" was not found in the dictionary.')
+        return json.loads(row[0])
 
     def get_senses(self, word: str) -> list[str]:
         data = self.get_word_json(word)

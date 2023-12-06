@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import time
-from typing import TYPE_CHECKING, Any, Callable, cast
+from typing import TYPE_CHECKING, Any, Callable
 from urllib.parse import unquote
 
 import requests
@@ -21,6 +21,7 @@ from aqt.utils import showWarning
 
 from ..consts import consts
 from ..fetcher import WiktionaryFetcher, WordNotFoundError
+from ..utils import get_dict_names
 
 if TYPE_CHECKING or qtmajor > 5:
     from ..forms.main_qt6 import Ui_Dialog
@@ -29,10 +30,6 @@ else:
 
 
 PROGRESS_LABEL = "Updated {count} out of {total} note(s)"
-
-
-def get_available_dicts() -> list[str]:
-    return [p.name for p in (consts.dir / "user_files").iterdir() if p.is_dir()]
 
 
 class WiktionaryFetcherDialog(QDialog):
@@ -61,9 +58,9 @@ class WiktionaryFetcherDialog(QDialog):
         ]
         self.setWindowTitle(consts.name)
         self.form.icon.setPixmap(
-            QPixmap(os.path.join(consts.dir, "icons", "enwiktionary-1.5x.png"))
+            QPixmap(os.path.join(consts.icons_dir, "enwiktionary-1.5x.png"))
         )
-        self.form.dictionaryComboBox.addItems(get_available_dicts())
+        self.form.dictionaryComboBox.addItems(get_dict_names())
         self.downloader: WiktionaryFetcher | None = None
         qconnect(self.form.addButton.clicked, self.on_add)
         self.form.addButton.setShortcut(QKeySequence("Ctrl+Return"))
@@ -153,8 +150,7 @@ class WiktionaryFetcherDialog(QDialog):
                 textFormat="rich",
             )
             return
-        dictionary = self.form.dictionaryComboBox.currentText()
-        self.downloader = WiktionaryFetcher(dictionary, consts.dir / "user_files")
+        dictionary_name = self.form.dictionaryComboBox.currentText()
         word_field = self.form.wordFieldComboBox.currentText()
         definition_field_i = self.form.definitionFieldComboBox.currentIndex()
         example_field_i = self.form.exampleFieldComboBox.currentIndex()
@@ -186,6 +182,7 @@ class WiktionaryFetcherDialog(QDialog):
         op = QueryOp(
             parent=self,
             op=lambda col: self._fill_notes(
+                dictionary_name,
                 word_field,
                 field_tuples,
             ),
@@ -203,6 +200,7 @@ class WiktionaryFetcherDialog(QDialog):
 
     def _fill_notes(
         self,
+        dictionary_name: str,
         word_field: str,
         field_tuples: tuple[tuple[int, Callable[[str], str]], ...],
     ) -> None:
@@ -222,33 +220,33 @@ class WiktionaryFetcherDialog(QDialog):
                 max=len(self.notes),
             )
 
-        for note in self.notes:
-            word = strip_html(note[word_field]).strip()
-            if not word:
-                continue
-            need_updating = False
-            try:
-                for field_tuple in field_tuples:
-                    if not field_tuple[0]:
-                        continue
-                    contents = field_tuple[1](word)
-                    note[self.field_names[field_tuple[0]]] = contents
-                    need_updating = True
-            except WordNotFoundError as exc:
-                self.errors.append(str(exc))
-            finally:
-                if need_updating:
-                    self.updated_notes.append(note)
-                if time.time() - last_progress >= 0.01:
-                    self.mw.taskman.run_on_main(on_progress)
-                    last_progress = time.time()
-            if want_cancel:
-                break
+        with WiktionaryFetcher(dictionary_name, consts.dicts_dir) as fetcher:
+            for note in self.notes:
+                word = strip_html(note[word_field]).strip()
+                if not word:
+                    continue
+                need_updating = False
+                try:
+                    for field_tuple in field_tuples:
+                        if not field_tuple[0]:
+                            continue
+                        contents = field_tuple[1](fetcher, word)
+                        note[self.field_names[field_tuple[0]]] = contents
+                        need_updating = True
+                except WordNotFoundError as exc:
+                    self.errors.append(str(exc))
+                finally:
+                    if need_updating:
+                        self.updated_notes.append(note)
+                    if time.time() - last_progress >= 0.01:
+                        self.mw.taskman.run_on_main(on_progress)
+                        last_progress = time.time()
+                if want_cancel:
+                    break
         self.mw.taskman.run_on_main(self.mw.progress.finish)
 
-    def _get_definitions(self, word: str) -> str:
-        downloader = cast(WiktionaryFetcher, self.downloader)
-        defs = downloader.get_senses(word)
+    def _get_definitions(self, fetcher: WiktionaryFetcher, word: str) -> str:
+        defs = fetcher.get_senses(word)
         if len(defs) == 0:
             return ""
         if len(defs) == 1:
@@ -259,9 +257,8 @@ class WiktionaryFetcherDialog(QDialog):
         formatted += "</ul>"
         return formatted
 
-    def _get_examples(self, word: str) -> str:
-        downloader = cast(WiktionaryFetcher, self.downloader)
-        examples = downloader.get_examples(word)
+    def _get_examples(self, fetcher: WiktionaryFetcher, word: str) -> str:
+        examples = fetcher.get_examples(word)
         if len(examples) == 0:
             return ""
         if len(examples) == 1:
@@ -272,21 +269,17 @@ class WiktionaryFetcherDialog(QDialog):
         formatted += "</ul>"
         return formatted
 
-    def _get_gender(self, word: str) -> str:
-        downloader = cast(WiktionaryFetcher, self.downloader)
-        return downloader.get_gender(word)
+    def _get_gender(self, fetcher: WiktionaryFetcher, word: str) -> str:
+        return fetcher.get_gender(word)
 
-    def _get_part_of_speech(self, word: str) -> str:
-        downloader = cast(WiktionaryFetcher, self.downloader)
-        return downloader.get_part_of_speech(word)
+    def _get_part_of_speech(self, fetcher: WiktionaryFetcher, word: str) -> str:
+        return fetcher.get_part_of_speech(word)
 
-    def _get_ipa(self, word: str) -> str:
-        downloader = cast(WiktionaryFetcher, self.downloader)
-        return downloader.get_ipa(word)
+    def _get_ipa(self, fetcher: WiktionaryFetcher, word: str) -> str:
+        return fetcher.get_ipa(word)
 
-    def _get_audio(self, word: str) -> str:
-        downloader = cast(WiktionaryFetcher, self.downloader)
-        url = downloader.get_audio_url(word)
+    def _get_audio(self, fetcher: WiktionaryFetcher, word: str) -> str:
+        url = fetcher.get_audio_url(word)
 
         http_session = requests.Session()
         # https://meta.wikimedia.org/wiki/User-Agent_policy
@@ -302,13 +295,11 @@ class WiktionaryFetcherDialog(QDialog):
         filename = self.mw.col.media.write_data(unquote(os.path.basename(url)), data)
         return "[sound:" + filename + "]"
 
-    def _get_etymology(self, word: str) -> str:
-        downloader = cast(WiktionaryFetcher, self.downloader)
-        return downloader.get_etymology(word)
+    def _get_etymology(self, fetcher: WiktionaryFetcher, word: str) -> str:
+        return fetcher.get_etymology(word)
 
-    def _get_declension(self, word: str) -> str:
-        downloader = cast(WiktionaryFetcher, self.downloader)
-        declensions = downloader.get_declension(word)
+    def _get_declension(self, fetcher: WiktionaryFetcher, word: str) -> str:
+        declensions = fetcher.get_declension(word)
         if len(declensions) == 0:
             return ""
         formatted = "<ul>"
