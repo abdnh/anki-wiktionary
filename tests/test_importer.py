@@ -13,7 +13,7 @@ def test_importing() -> None:
         count = WiktionaryFetcher.import_kaikki_dict(
             tests_dir / "test_dict.json",
             "dict",
-            on_progress=lambda *args, **kwargs: None,
+            on_progress=lambda *args, **kwargs: True,
             on_error=lambda *args, **kwargs: None,
             base_dir=tmp_dir,
         )
