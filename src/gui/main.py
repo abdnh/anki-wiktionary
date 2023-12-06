@@ -32,6 +32,7 @@ else:
 PROGRESS_LABEL = "Updated {count} out of {total} note(s)"
 
 
+# pylint: disable=too-many-instance-attributes
 class WiktionaryFetcherDialog(QDialog):
     def __init__(
         self,
@@ -202,7 +203,7 @@ class WiktionaryFetcherDialog(QDialog):
         self,
         dictionary_name: str,
         word_field: str,
-        field_tuples: tuple[tuple[int, Callable[[str], str]], ...],
+        field_tuples: tuple[tuple[int, Callable[[WiktionaryFetcher, str], str]], ...],
     ) -> None:
         want_cancel = False
         last_progress = 0.0
@@ -252,8 +253,7 @@ class WiktionaryFetcherDialog(QDialog):
         if len(defs) == 1:
             return defs[0]
         formatted = "<ul>"
-        for definition in defs:
-            formatted += f"<li>{definition}</li>"
+        formatted += "".join(f"<li>{definition}</li>" for definition in defs)
         formatted += "</ul>"
         return formatted
 
@@ -264,8 +264,7 @@ class WiktionaryFetcherDialog(QDialog):
         if len(examples) == 1:
             return examples[0]
         formatted = "<ul>"
-        for definition in examples:
-            formatted += f"<li>{definition}</li>"
+        formatted += "".join(f"<li>{example}</li>" for example in examples)
         formatted += "</ul>"
         return formatted
 

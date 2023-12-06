@@ -15,7 +15,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "vendor"))
 from .consts import consts
 from .gui.importer import ImportDictionaryDialog
 from .gui.main import WiktionaryFetcherDialog
-from .log import logger
 from .migration import migrate_legacy_dicts
 
 

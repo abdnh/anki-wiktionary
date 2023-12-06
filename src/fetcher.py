@@ -43,6 +43,7 @@ class WiktionaryFetcher:
             "INSERT INTO words(word, data) values(?, ?)", (word, data)
         )
 
+    # pylint: disable=too-many-arguments
     @classmethod
     def import_kaikki_dict(
         cls,

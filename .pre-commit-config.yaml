@@ -74,7 +74,7 @@ repos:
       hooks:
           - id: prettier
             args: ["--tab-width", "4", "--write"]
-            exclude: "ankiweb_page.html"
+            exclude: "(ankiweb_page.html)|(tests/test_dict.json)"
             exclude_types: [python]
 
 ci:
