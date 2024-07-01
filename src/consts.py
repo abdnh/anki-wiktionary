@@ -19,3 +19,4 @@ consts = AddonConsts(
     dicts_dir=base_consts.dir / "user_files" / "dictionaries",
     icons_dir=base_consts.dir / "icons"
 )
+consts.dicts_dir.mkdir(exist_ok=True)
