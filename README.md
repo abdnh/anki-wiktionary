@@ -28,7 +28,7 @@ The icons are taken from https://en.wiktionary.org/
 
 ## Support & feature requests
 
-Please post any questions, bug reports, or feature requests in the [support page](https://forums.ankiweb.net/c/add-ons/11) or the [issue tracker](https://github.com/abdnh/anki-addon-template/issues).
+Please post any questions, bug reports, or feature requests in the [support page](https://forums.ankiweb.net/t/wiktionary-add-on/19571) or the [issue tracker](https://github.com/abdnh/anki-wiktionary/issues).
 
 If you want priority support for your feature/help request, I'm available for hire.
 Get in touch via [email](mailto:abdo@abdnh.net) or the UpWork link below.
