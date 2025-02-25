@@ -19,7 +19,7 @@ from aqt.qt import QDialog, QKeySequence, QPixmap, QWidget, qconnect
 from aqt.utils import showWarning
 
 from ..consts import consts
-from ..fetcher import WiktionaryFetcher, WordNotFoundError
+from ..fetcher import WiktionaryError, WiktionaryFetcher, WordNotFoundError
 from ..forms.main import Ui_Dialog
 from ..utils import get_dict_names
 from .dialog import Dialog
@@ -177,8 +177,10 @@ class WiktionaryFetcherDialog(Dialog):
 
         def on_failure(exc: Exception) -> None:
             self.mw.progress.finish()
-            showWarning(str(exc), parent=self, title=consts.name)
-            self.accept()
+            if isinstance(exc, WiktionaryError):
+                showWarning(str(exc), parent=self, title=consts.name)
+            else:
+                raise exc
 
         op = QueryOp(
             parent=self,
