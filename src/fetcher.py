@@ -166,15 +166,16 @@ class WiktionaryFetcher:
                 isinstance(form.get("source"), str)
                 and form.get("source").lower() == "declension"
             ):
+                tags = form.get("tags", [])
                 # "table-tags" and "inflection-template" seems like useless stuffs
                 useless_tags = ["table-tags", "inflection-template"]
                 for useless_tag in useless_tags:
-                    if useless_tag in form.get("tags"):
+                    if useless_tag in tags:
                         break
 
                 else:
                     # append {"tags": "form"} to `declensions`
-                    key = ", ".join(form.get("tags"))
+                    key = ", ".join(tags)
                     value = form.get("form")
                     declensions.update({key: declensions.get(key, []) + [value]})
 
