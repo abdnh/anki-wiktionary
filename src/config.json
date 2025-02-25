@@ -1,14 +1,15 @@
 {
-    "editor_shortcut": "Ctrl+S",
+    "audio_field": "",
     "browser_shortcut": "Ctrl+W",
-    "dictionary_field": "",
-    "word_field": "",
+    "declension_field": "",
     "definition_field": "",
+    "dictionary_field": "",
+    "editor_shortcut": "Ctrl+S",
+    "etymology_field": "",
     "example_field": "",
     "gender_field": "",
-    "part_of_speech_field": "",
     "ipa_field": "",
-    "audio_field": "",
-    "etymology_field": "",
-    "declension_field": ""
+    "part_of_speech_field": "",
+    "report_errors": true,
+    "word_field": ""
 }

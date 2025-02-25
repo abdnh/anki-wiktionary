@@ -5,21 +5,15 @@ import re
 import sys
 import traceback
 from concurrent.futures import Future
-from typing import TYPE_CHECKING
 
-from aqt import qtmajor
 from aqt.main import AnkiQt
 from aqt.qt import QKeySequence, qconnect
 from aqt.utils import getFile, openLink, showWarning, tooltip
 
 from ..consts import consts
 from ..fetcher import WiktionaryFetcher
+from ..forms.importer import Ui_Dialog
 from ..gui.dialog import Dialog
-
-if TYPE_CHECKING or qtmajor > 5:
-    from ..forms.importer_qt6 import Ui_Dialog
-else:
-    from ..forms.importer_qt5 import Ui_Dialog  # type: ignore
 
 
 class ImportDictionaryDialog(Dialog):

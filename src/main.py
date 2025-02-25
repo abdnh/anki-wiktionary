@@ -12,7 +12,9 @@ from aqt.qt import *
 from aqt.utils import showText, showWarning, tooltip
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "vendor"))
+
 from .consts import consts
+from .errors import setup_error_handler
 from .gui.importer import ImportDictionaryDialog
 from .gui.main import WiktionaryFetcherDialog
 from .migration import migrate_legacy_dicts
@@ -112,6 +114,7 @@ def add_wiktionary_menu() -> None:
     mw.form.menuTools.addMenu(menu)
 
 
+setup_error_handler()
 browser_menus_did_init.append(on_browser_menus_did_init)
 editor_did_init_buttons.append(on_editor_did_init_buttons)
 add_wiktionary_menu()

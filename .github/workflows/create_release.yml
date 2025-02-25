@@ -35,7 +35,7 @@ jobs:
                   python -m ankiscripts.changes ${{ github.ref }} > build/RELEASE.md
 
             - name: Release
-              uses: softprops/action-gh-release@v1
+              uses: softprops/action-gh-release@v2
               if: startsWith(github.ref, 'refs/tags/')
               with:
                   files: build/*.ankiaddon

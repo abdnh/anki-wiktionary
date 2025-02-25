@@ -3,11 +3,12 @@
     "configurations": [
         {
             "name": "Run add-on",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "ankiscripts.run",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": true,
+            "args": ["-b", "ankidata"]
         }
     ]
 }

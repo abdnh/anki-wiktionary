@@ -1,5 +1,5 @@
 exclude: "venv|vendor|build"
-default_stages: [commit]
+default_stages: [pre-commit]
 
 repos:
     - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -17,18 +17,20 @@ repos:
           - id: mixed-line-ending
           - id: detect-private-key
 
-    - repo: https://github.com/psf/black
-      rev: 23.7.0
-      hooks:
-          - id: black
-
-    - repo: https://github.com/PyCQA/isort
-      rev: 5.12.0
-      hooks:
-          - id: isort
-
     - repo: local
       hooks:
+          - id: black
+            name: black
+            entry: python -m black src tests --exclude="forms|vendor"
+            language: system
+            types: [python]
+            require_serial: true
+          - id: isort
+            name: isort
+            entry: python -m isort src tests
+            language: system
+            types: [python]
+            require_serial: true
           - id: pylint
             name: pylint
             entry: python -m pylint src tests

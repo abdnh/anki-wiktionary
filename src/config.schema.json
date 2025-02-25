@@ -1,7 +1,15 @@
 {
-    "properties": {
-        "foo": {
+    "patternProperties": {
+        "^.*_field$": {
             "type": "string"
+        },
+        "^.*_shortcut$": {
+            "type": "string"
+        }
+    },
+    "properties": {
+        "report_errors": {
+            "type": "boolean"
         }
     },
     "type": "object"

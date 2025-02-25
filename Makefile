@@ -12,14 +12,13 @@ vendor:
 	python -m ankiscripts.vendor
 
 fix:
-	python -m black src tests --exclude="forms|vendor"
-	python -m isort src tests
-
+	pre-commit run -a black
+	pre-commit run -a isort
 mypy:
-	-python -m mypy src tests
+	-pre-commit run -a mypy
 
 pylint:
-	-python -m pylint src tests
+	-pre-commit run -a pylint
 
 lint: mypy pylint
 

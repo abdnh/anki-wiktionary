@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import time
-from typing import TYPE_CHECKING, Any, Callable
+from typing import Any, Callable
 from urllib.parse import unquote
 
 import requests
@@ -13,7 +13,6 @@ except ImportError:
     from anki.utils import stripHTML as strip_html  # type: ignore
 
 from anki.notes import Note
-from aqt import qtmajor
 from aqt.main import AnkiQt
 from aqt.operations import QueryOp
 from aqt.qt import QDialog, QKeySequence, QPixmap, QWidget, qconnect
@@ -21,14 +20,9 @@ from aqt.utils import showWarning
 
 from ..consts import consts
 from ..fetcher import WiktionaryFetcher, WordNotFoundError
+from ..forms.main import Ui_Dialog
 from ..utils import get_dict_names
 from .dialog import Dialog
-
-if TYPE_CHECKING or qtmajor > 5:
-    from ..forms.main_qt6 import Ui_Dialog
-else:
-    from ..forms.main_qt5 import Ui_Dialog
-
 
 PROGRESS_LABEL = "Updated {count} out of {total} note(s)"
 
