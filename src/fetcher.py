@@ -12,7 +12,11 @@ class WiktionaryError(Exception):
 
 
 class WordNotFoundError(WiktionaryError):
-    pass
+    def __init__(self, word: str):
+        self.word = word
+
+    def __str__(self) -> str:
+        return f'"{self.word}" was not found in the dictionary.'
 
 
 class WiktionaryFetcher:
@@ -39,9 +43,7 @@ class WiktionaryFetcher:
         self.close()
 
     def _add_word(self, word: str, data: str) -> None:
-        self._connection.execute(
-            "INSERT INTO words(word, data) values(?, ?)", (word, data)
-        )
+        self._connection.execute("INSERT INTO words(word, data) values(?, ?)", (word, data))
 
     # pylint: disable=too-many-arguments
     @classmethod
@@ -84,19 +86,14 @@ class WiktionaryFetcher:
 
     def get_word_json(self, word: str) -> dict:
         # TODO: handle words with multiple word senses
-        row = self._connection.execute(
-            "SELECT data FROM words WHERE word = ?", (word,)
-        ).fetchone()
+        row = self._connection.execute("SELECT data FROM words WHERE word = ?", (word,)).fetchone()
         if not row:
-            raise WordNotFoundError(f'"{word}" was not found in the dictionary.')
+            raise WordNotFoundError(word)
         return json.loads(row[0])
 
     def get_senses(self, word: str) -> list[str]:
         data = self.get_word_json(word)
-        return [
-            "\n".join(d.get("raw_glosses", d.get("glosses", [])))
-            for d in data.get("senses", [])
-        ]
+        return ["\n".join(d.get("raw_glosses", d.get("glosses", []))) for d in data.get("senses", [])]
 
     def get_examples(self, word: str) -> list[str]:
         data = self.get_word_json(word)
@@ -114,7 +111,8 @@ class WiktionaryFetcher:
         data = self.get_word_json(word)
         # forms = data.get("senses", []) + data.get("forms", [])
         senses = data.get("senses", [])
-        # FIXME: do we need to return the form too along with the gender? and can different forms have different genders?
+        # FIXME: do we need to return the form too along with the gender?
+        # and can different forms have different genders?
         for form in senses:
             for gender in genders:
                 if gender in form.get("tags", []):
@@ -162,10 +160,7 @@ class WiktionaryFetcher:
         forms = data.get("forms", [])
 
         for form in forms:
-            if (
-                isinstance(form.get("source"), str)
-                and form.get("source").lower() == "declension"
-            ):
+            if isinstance(form.get("source"), str) and form.get("source").lower() == "declension":
                 tags = form.get("tags", [])
                 # "table-tags" and "inflection-template" seems like useless stuffs
                 useless_tags = ["table-tags", "inflection-template"]

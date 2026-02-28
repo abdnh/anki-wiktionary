@@ -1,0 +1,16 @@
+name: Create Release
+
+on:
+  create:
+    tags:
+      - "*"
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+jobs:
+  create-release:
+    uses: abdnh/anki-addon-actions/.github/workflows/create-release.yml@main
+
+  build-docs:
+    uses: ./.github/workflows/build-docs.yml

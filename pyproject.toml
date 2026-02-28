@@ -3,24 +3,89 @@ requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "anki_wiktionary"
+name = "wiktionary"
 authors = [{ name = "Abdo", email = "abdo@abdnh.net" }]
 readme = "README.md"
+requires-python = ">=3.9"
 classifiers = [
-    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
 ]
-dynamic = ["dependencies", "optional-dependencies", "version"]
-
-[tool.setuptools.dynamic]
-dependencies = { file = ["requirements/bundle.txt"] }
-optional-dependencies.dev = { file = ["requirements/dev.txt"] }
+license = "AGPL-3.0-or-later"
+dynamic = ["version"]
+dependencies = [
+    "ankiutils",
+    "protobuf",
+]
 
 [tool.setuptools]
-package-dir = { "anki_wiktionary" = "src" }
+package-dir = { "wiktionary" = "src" }
 
-[tool.setuptools_scm]
+[tool.uv.sources]
+ankiscripts = { git = "https://github.com/abdnh/ankiscripts", branch = "master" }
+ankiutils = { git = "https://github.com/abdnh/ankiutils", branch = "master" }
+
+[dependency-groups]
+dev = [
+    "ankiscripts[forms,template]",
+    "ankiutils",
+    "aqt[qt]",
+    "mypy>=1.15.0",
+    "prek>=0.2.30",
+    "pytest>=8.3.5",
+    "pytest-cov>=6.1.1",
+    "ruff>=0.11.7",
+    "sentry-sdk>=2.35.0",
+    "types-protobuf",
+]
 
 [project.urls]
-Repository = "https://github.com/abdnh/anki-addon-template"
+Repository = "https://github.com/abdnh/anki-wiktionary"
+
+[tool.ruff]
+extend-exclude = [
+    ".venv",
+    "ankidata",
+    "vendor",
+    "forms",
+    "user_files",
+    "build",
+    "node_modules",
+    "proto",
+]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "PL", "TRY", "FA"]
+ignore = ["PLW0603", "PLR2004"]
+
+[tool.pytest.ini_options]
+addopts = "--cov=src --cov-branch"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+omit = ["src/forms/*", "src/vendor/*"]
+
+[tool.mypy]
+pretty = true
+strict_optional = false
+show_error_codes = true
+disallow_untyped_decorators = true
+warn_redundant_casts = true
+warn_unused_configs = true
+warn_unused_ignores = true
+check_untyped_defs = true
+disallow_untyped_defs = true
+strict_equality = true
+exclude = ["vendor", "user_files"]
+modules = ["src", "tests"]
+
+[[tool.mypy.overrides]]
+module = "src.forms.*"
+ignore_errors = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "src.vendor.*"
+ignore_missing_imports = true
+ignore_errors = true

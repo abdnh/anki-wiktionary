@@ -1,0 +1,14 @@
+syntax = "proto3";
+package ankiaddon.backend;
+
+import "generic.proto";
+
+service BackendService {
+  rpc GetSupportLinks(generic.Empty) returns (GetSupportLinksResponse);
+}
+
+message GetSupportLinksResponse {
+  string github_page = 1;
+  string forums_page = 2;
+  string docs_page = 3;
+}

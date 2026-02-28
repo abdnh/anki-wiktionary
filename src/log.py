@@ -1,3 +1,3 @@
-from ankiutils.log import get_logger
+from .vendor.ankiutils.log import get_logger
 
 logger = get_logger(__name__)

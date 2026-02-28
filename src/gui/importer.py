@@ -38,7 +38,8 @@ class ImportDictionaryDialog(Dialog):
         self.form.addButton.setShortcut(QKeySequence("Ctrl+Return"))
         self.form.description.setText(
             """
-Here you can import a new dictionary downloaded from <a href="https://kaikki.org/dictionary/">the dictionary list at kaikki.org</a>.<br>
+Here you can import a new dictionary downloaded from \
+<a href="https://kaikki.org/dictionary/">the dictionary list at kaikki.org</a>.<br>
 After finding your language link in the list and opening it, you'll find an option<br>
 at the bottom of the page to download a JSON file (which has a name like "kaikki.org-dictionary-Russian.json")<br>
 containing all word senses that you can import to Anki here.<br>

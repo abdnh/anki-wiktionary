@@ -1,7 +1,12 @@
 {
+    "ankiweb_id": "2087444887",
+    "homepage": "https://github.com/abdnh/anki-wiktionary",
+    "min_point_version": 50,
     "name": "Wiktionary",
     "package": "wiktionary",
-    "homepage": "https://github.com/abdnh/anki-wiktionary",
-    "ankiweb_id": "2087444887",
-    "min_point_version": 46
+    "support_channels": {
+        "forums": "https://forums.ankiweb.net/t/wiktionary-add-on/19571",
+        "github": "https://github.com/abdnh/anki-wiktionary/issues"
+    },
+    "docs_page": "https://abdnh.github.io/anki-wiktionary"
 }

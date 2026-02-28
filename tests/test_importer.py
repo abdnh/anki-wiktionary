@@ -22,7 +22,4 @@ def test_importing() -> None:
             assert fetcher.get_gender("кошка") == "feminine"
             assert fetcher.get_senses("кошка")[0] == "cat"
             assert fetcher.get_part_of_speech("кошка") == "noun"
-            assert (
-                fetcher.get_examples("кошка")[0]
-                == "жить как ко́шка с соба́кой / to lead a cat-and-dog life"
-            )
+            assert fetcher.get_examples("кошка")[0] == "жить как ко́шка с соба́кой / to lead a cat-and-dog life"

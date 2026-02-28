@@ -8,7 +8,12 @@
             "module": "ankiscripts.run",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args": ["-b", "ankidata"]
+            "args": ["-b", "ankidata"],
+            "env": {
+                "REPORT_ERRORS": "0",
+                "WIKTIONARY_HMR": "1",
+                "WIKTIONARY_API_PORT": "40001"
+            }
         }
     ]
 }

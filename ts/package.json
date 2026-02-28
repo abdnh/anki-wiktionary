@@ -1,0 +1,52 @@
+{
+    "name": "wiktionary",
+    "private": true,
+    "version": "0.0.1",
+    "type": "module",
+    "scripts": {
+        "dev": "vite dev",
+        "build": "vite build",
+        "bundle_ts": "node bundle_ts.js",
+        "preview": "vite preview",
+        "prepare": "svelte-kit sync || echo ''",
+        "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+        "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+        "lint": "eslint .",
+        "test:unit": "vitest",
+        "test": "npm run test:unit -- --run",
+        "check_proto": "buf format --exit-code ../proto",
+        "format_proto": "buf format -w ../proto"
+    },
+    "devDependencies": {
+        "@bufbuild/buf": "^1.57.0",
+        "@bufbuild/protoc-gen-es": "^2.7.0",
+        "@eslint/compat": "^1.2.5",
+        "@eslint/js": "^9.18.0",
+        "@sveltejs/adapter-static": "^3.0.9",
+        "@sveltejs/kit": "^2.22.0",
+        "@sveltejs/vite-plugin-svelte": "^6.0.0",
+        "@tailwindcss/typography": "^0.5.19",
+        "@tailwindcss/vite": "^4.1.18",
+        "@types/node": "^24.3.1",
+        "@vitest/browser": "^3.2.3",
+        "daisyui": "^5.5.14",
+        "eslint": "^9.18.0",
+        "eslint-plugin-svelte": "^3.0.0",
+        "globals": "^16.0.0",
+        "sass": "^1.92.1",
+        "svelte": "^5.0.0",
+        "svelte-check": "^4.0.0",
+        "tailwindcss": "^4.1.18",
+        "typescript": "^5.0.0",
+        "typescript-eslint": "^8.20.0",
+        "vite": "^7.1.11",
+        "vitest": "^3.2.3",
+        "vitest-browser-svelte": "^0.1.0"
+    },
+    "dependencies": {
+        "@bufbuild/protobuf": "^2.7.0",
+        "@connectrpc/connect": "^2.1.0",
+        "@connectrpc/connect-web": "^2.1.0",
+        "ankiutils": "^0.0.12"
+    }
+}

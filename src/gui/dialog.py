@@ -1,13 +1,17 @@
-from typing import Optional
+from __future__ import annotations
 
-import ankiutils.gui.dialog
-from aqt.qt import *
+from aqt.qt import Qt, QWidget
+
+from ..consts import consts
+from ..vendor.ankiutils.gui import dialog
 
 
-class Dialog(ankiutils.gui.dialog.Dialog):
+class Dialog(dialog.Dialog):
     def __init__(
         self,
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
         flags: Qt.WindowType = Qt.WindowType.Dialog,
+        subtitle: str = "",
     ) -> None:
-        super().__init__(__name__, parent, flags)
+        self.subtitle = subtitle
+        super().__init__(consts=consts, parent=parent, flags=flags, subtitle=subtitle)

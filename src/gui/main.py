@@ -57,9 +57,7 @@ class WiktionaryFetcherDialog(Dialog):
             self.form.declensionFieldComboBox,
         ]
         self.setWindowTitle(consts.name)
-        self.form.icon.setPixmap(
-            QPixmap(os.path.join(consts.icons_dir, "enwiktionary-1.5x.png"))
-        )
+        self.form.icon.setPixmap(QPixmap(os.path.join(consts.icons_dir, "enwiktionary-1.5x.png")))
         self.form.dictionaryComboBox.addItems(get_dict_names())
         self.downloader: WiktionaryFetcher | None = None
         qconnect(self.form.addButton.clicked, self.on_add)
@@ -90,9 +88,7 @@ class WiktionaryFetcherDialog(Dialog):
             combo.setCurrentIndex(selected)
             qconnect(
                 combo.currentIndexChanged,
-                lambda field_index, combo_index=i: self.on_selected_field_changed(
-                    combo_index, field_index
-                ),
+                lambda field_index, combo_index=i: self.on_selected_field_changed(combo_index, field_index),
             )
         self.set_last_used_settings()
         return 1
@@ -119,10 +115,10 @@ class WiktionaryFetcherDialog(Dialog):
         for i, field_opt in enumerate(self.CONFIG_MODEL_FIELDS):
             field_name = self.config[field_opt].lower()
             combo = self.combos[i]
-            for i in range(combo.count()):
-                text = combo.itemText(i)
+            for j in range(combo.count()):
+                text = combo.itemText(j)
                 if text.lower() == field_name:
-                    combo.setCurrentIndex(i)
+                    combo.setCurrentIndex(j)
                     break
 
     def save_settings(self) -> None:
@@ -216,9 +212,7 @@ class WiktionaryFetcherDialog(Dialog):
             nonlocal want_cancel
             want_cancel = self.mw.progress.want_cancel()
             self.mw.progress.update(
-                label=PROGRESS_LABEL.format(
-                    count=len(self.updated_notes), total=len(self.notes)
-                ),
+                label=PROGRESS_LABEL.format(count=len(self.updated_notes), total=len(self.notes)),
                 value=len(self.updated_notes),
                 max=len(self.notes),
             )

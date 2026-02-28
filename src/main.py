@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import sys
+import os
 
 from anki.collection import Collection, OpChanges
 from aqt import mw
@@ -8,21 +8,23 @@ from aqt.browser.browser import Browser
 from aqt.editor import Editor
 from aqt.gui_hooks import browser_menus_did_init, editor_did_init_buttons
 from aqt.operations import CollectionOp
-from aqt.qt import *
+from aqt.qt import QAction, QKeySequence, qconnect
 from aqt.utils import showText, showWarning, tooltip
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "vendor"))
+from .patches import patch_certifi
 
+patch_certifi()
+
+# ruff: noqa: E402
+from .backend.server import init_server
 from .consts import consts
 from .errors import setup_error_handler
-from .gui.importer import ImportDictionaryDialog
 from .gui.main import WiktionaryFetcherDialog
+from .menu import add_menu
 from .migration import migrate_legacy_dicts
 
 
-def on_bulk_updated_notes(
-    browser: Browser, errors: list[str], updated_count: int
-) -> None:
+def on_bulk_updated_notes(browser: Browser, errors: list[str], updated_count: int) -> None:
     if updated_count:
         tooltip(f"Updated {updated_count} note(s).", period=5000, parent=browser)
     if len(errors) == 1:
@@ -42,9 +44,7 @@ def on_browser_action_triggered(browser: Browser) -> None:
         errors = dialog.errors
 
         def op(col: Collection) -> OpChanges:
-            pos = col.add_custom_undo_entry(
-                f"Fill {len(updated_notes)} notes with data from Wiktionary"
-            )
+            pos = col.add_custom_undo_entry(f"Fill {len(updated_notes)} notes with data from Wiktionary")
             col.update_notes(updated_notes)
             return col.merge_undo_entries(pos)
 
@@ -80,9 +80,7 @@ def on_editor_button_clicked(editor: Editor) -> None:
 
 def on_editor_did_init_buttons(buttons: list[str], editor: Editor) -> None:
     config = mw.addonManager.getConfig(__name__)
-    shortcut = QKeySequence(config["editor_shortcut"]).toString(
-        QKeySequence.SequenceFormat.NativeText
-    )
+    shortcut = QKeySequence(config["editor_shortcut"]).toString(QKeySequence.SequenceFormat.NativeText)
     button = editor.addButton(
         icon=os.path.join(consts.icons_dir, "en.ico"),
         cmd="wiktionary",
@@ -94,28 +92,10 @@ def on_editor_did_init_buttons(buttons: list[str], editor: Editor) -> None:
     buttons.append(button)
 
 
-def on_import_dictionary() -> None:
-    dialog = ImportDictionaryDialog(mw)
-    dialog.exec()
-    if dialog.errors:
-        showText(
-            "The following errors happened during the process:\n"
-            + "\n".join(dialog.errors),
-            copyBtn=True,
-        )
-
-
-def add_wiktionary_menu() -> None:
-    menu = QMenu(consts.name, mw)
-    action = QAction(menu)
-    action.setText("Import a dictionary")
-    qconnect(action.triggered, on_import_dictionary)
-    menu.addAction(action)
-    mw.form.menuTools.addMenu(menu)
-
-
-setup_error_handler()
-browser_menus_did_init.append(on_browser_menus_did_init)
-editor_did_init_buttons.append(on_editor_did_init_buttons)
-add_wiktionary_menu()
-migrate_legacy_dicts()
+def init() -> None:
+    setup_error_handler()
+    browser_menus_did_init.append(on_browser_menus_did_init)
+    editor_did_init_buttons.append(on_editor_did_init_buttons)
+    migrate_legacy_dicts()
+    add_menu()
+    init_server()

@@ -1,0 +1,13 @@
+_commit: 0.0.3-36-g6177498
+_src_path: https://github.com/abdnh/anki-addon-template
+add_author_support_links: true
+ankiweb_id: "2087444887"
+author: Abdo
+docs_page: https://abdnh.github.io/anki-wiktionary
+email: abdo@abdnh.net
+forums_page: https://forums.ankiweb.net/t/wiktionary-add-on/19571
+github_page: https://github.com/abdnh/anki-wiktionary
+max_point_version: 0
+min_point_version: 50
+package_name: wiktionary
+project_name: Wiktionary

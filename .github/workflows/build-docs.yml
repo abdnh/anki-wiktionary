@@ -1,0 +1,14 @@
+name: Build Docs
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-docs:
+    uses: abdnh/anki-addon-actions/.github/workflows/build-docs.yml@main

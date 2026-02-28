@@ -1,4 +1,6 @@
 import sys
 
 if "pytest" not in sys.modules:
-    from . import main
+    from .main import init
+
+    init()
