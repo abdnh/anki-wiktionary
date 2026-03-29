@@ -45,7 +45,6 @@ class WiktionaryFetcher:
     def _add_word(self, word: str, data: str) -> None:
         self._connection.execute("INSERT INTO words(word, data) values(?, ?)", (word, data))
 
-    # pylint: disable=too-many-arguments
     @classmethod
     def import_kaikki_dict(
         cls,

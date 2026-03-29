@@ -47,7 +47,7 @@ The imported dictionary will be made available for use in the add-on's main dial
         )
         qconnect(
             self.form.description.linkActivated,
-            lambda link: openLink(link),  # pylint: disable=unnecessary-lambda
+            lambda link: openLink(link),
         )
         super().setup_ui()
 

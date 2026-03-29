@@ -27,7 +27,6 @@ from .dialog import Dialog
 PROGRESS_LABEL = "Updated {count} out of {total} note(s)"
 
 
-# pylint: disable=too-many-instance-attributes
 class WiktionaryFetcherDialog(Dialog):
     key = "fetcher"
 
@@ -68,7 +67,7 @@ class WiktionaryFetcherDialog(Dialog):
     def exec(self) -> int:
         if self._fill_fields():
             return super().exec()
-        return QDialog.DialogCode.Rejected  # pylint: disable=no-member
+        return QDialog.DialogCode.Rejected
 
     def _fill_fields(self) -> int:
         mids = {note.mid for note in self.notes}
