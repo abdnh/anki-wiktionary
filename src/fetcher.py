@@ -3,8 +3,12 @@ from __future__ import annotations
 import json
 import shutil
 import sqlite3
+from enum import Enum
 from pathlib import Path
 from typing import Any, Callable
+
+from .log import logger
+from .utils import batched
 
 
 class WiktionaryError(Exception):
@@ -17,6 +21,24 @@ class WordNotFoundError(WiktionaryError):
 
     def __str__(self) -> str:
         return f'"{self.word}" was not found in the dictionary.'
+
+
+class EntryFields(Enum):
+    WORD = "word"
+    RAW_GLOSSES = "raw_glosses"
+    SENSES = "senses"
+    FORMS = "forms"
+    POS = "pos"
+    SOUNDS = "sounds"
+    ETYMOLOGY_TEXT = "etymology_text"
+
+
+EXTRACTED_FIELDS = set(field.value for field in list(EntryFields) if field != EntryFields.WORD)
+BATCH_SIZE = 10000
+
+
+def strip_unused_fields(entry: dict[str, Any]) -> dict[str, Any]:
+    return {k: v for k, v in entry.items() if k in EXTRACTED_FIELDS}
 
 
 class WiktionaryFetcher:
@@ -34,6 +56,7 @@ class WiktionaryFetcher:
         )
 
     def close(self) -> None:
+        self._connection.commit()
         self._connection.close()
 
     def __enter__(self) -> WiktionaryFetcher:
@@ -42,8 +65,15 @@ class WiktionaryFetcher:
     def __exit__(self, exc_type: Any, exc_value: Any, exc_tb: Any) -> None:
         self.close()
 
-    def _add_word(self, word: str, data: str) -> None:
-        self._connection.execute("INSERT INTO words(word, data) values(?, ?)", (word, data))
+    def _add_word(self, word: str, data: dict[str, Any]) -> None:
+        data = strip_unused_fields(data)
+        self._connection.execute("INSERT INTO words(word, data) values(?, ?)", (word, json.dumps(data)))
+
+    def _add_words(self, entries: list[dict[str, Any]]) -> None:
+        entries = [
+            {"word": entry[EntryFields.WORD.value], "data": json.dumps(strip_unused_fields(entry))} for entry in entries
+        ]
+        self._connection.executemany("INSERT INTO words(word, data) values(:word, :data)", entries)
 
     @classmethod
     def import_kaikki_dict(
@@ -51,35 +81,44 @@ class WiktionaryFetcher:
         filename: str | Path,
         dictionary: str,
         on_progress: Callable[[int], bool],
-        on_error: Callable[[str, Exception], None],
+        on_error: Callable[[int, Exception], None],
         base_dir: Path,
     ) -> int:
-        """Dumps a JSON file downloaded from https://kaikki.org/dictionary/{lang}/
+        """Dumps a JSON file downloaded from https://kaikki.org/dictionary/rawdata.html
         to a SQLite database"""
         base_dir.mkdir(exist_ok=True)
         count = 0
         with open(filename, encoding="utf-8") as file:
             with WiktionaryFetcher(dictionary, base_dir) as fetcher:
-                for i, line in enumerate(file):
-                    try:
-                        entry = json.loads(line)
-                        word = entry["word"]
-                        fetcher._add_word(word, line)
-                        count += 1
-                    except Exception as exc:
-                        print(f"{exc=}")
-                        on_error(word, exc)
-                    if i % 50 == 0:
-                        if not on_progress(i + 1):
-                            break
-                fetcher._connection.commit()
+                for batch in batched(file, BATCH_SIZE):
+                    entries: list[dict[str, Any]] = []
+                    for line in batch:
+                        try:
+                            entry = json.loads(line)
+                            if "redirect" in entry:
+                                # Ignore redirects for now
+                                continue
+                            # Check word field
+                            entry[EntryFields.WORD.value]
+                            entries.append(entry)
+                        except Exception as exc:
+                            logger.exception(
+                                "Error while processing line", filename=filename, dictionary=dictionary, line=line
+                            )
+                            on_error(count + 1, exc)
+                    if not on_progress(count + 1):
+                        break
+                    count += BATCH_SIZE
+                    if entries:
+                        fetcher._add_words(entries)
         return count
 
     @classmethod
     def migrate_dict_to_sqlite(cls, dictionary_dir: Path, new_dir: Path) -> None:
         with WiktionaryFetcher(dictionary_dir.name, new_dir) as fetcher:
-            for file in dictionary_dir.iterdir():
-                fetcher._add_word(file.stem, file.read_text(encoding="utf-8"))
+            for path in dictionary_dir.iterdir():
+                with open(path, encoding="utf-8") as file:
+                    fetcher._add_word(path.stem, json.load(file))
             fetcher._connection.commit()
         shutil.rmtree(dictionary_dir)
 
@@ -92,12 +131,12 @@ class WiktionaryFetcher:
 
     def get_senses(self, word: str) -> list[str]:
         data = self.get_word_json(word)
-        return ["\n".join(d.get("raw_glosses", d.get("glosses", []))) for d in data.get("senses", [])]
+        return ["\n".join(d.get(EntryFields.RAW_GLOSSES.value, d.get("glosses", []))) for d in data.get("senses", [])]
 
     def get_examples(self, word: str) -> list[str]:
         data = self.get_word_json(word)
         examples = []
-        for sense in data.get("senses", []):
+        for sense in data.get(EntryFields.SENSES.value, []):
             for example in sense.get("examples", []):
                 sent = example["text"]
                 if example.get("english"):
@@ -109,7 +148,7 @@ class WiktionaryFetcher:
         genders = {"feminine", "masculine", "neuter", "common-gender"}
         data = self.get_word_json(word)
         # forms = data.get("senses", []) + data.get("forms", [])
-        senses = data.get("senses", [])
+        senses = data.get(EntryFields.SENSES.value, [])
         # FIXME: do we need to return the form too along with the gender?
         # and can different forms have different genders?
         for form in senses:
@@ -118,7 +157,7 @@ class WiktionaryFetcher:
                     return gender
 
         # Latin words have their genders in "forms"
-        forms = data.get("forms", [])
+        forms = data.get(EntryFields.FORMS.value, [])
         for form in forms:
             for gender in genders:
                 tags = form.get("tags", [])
@@ -129,11 +168,11 @@ class WiktionaryFetcher:
 
     def get_part_of_speech(self, word: str) -> str:
         data = self.get_word_json(word)
-        return data.get("pos", "")
+        return data.get(EntryFields.POS, "")
 
     def get_ipa(self, word: str) -> str:
         data = self.get_word_json(word)
-        sounds = data.get("sounds", [])
+        sounds = data.get(EntryFields.SOUNDS.value, [])
         for sound in sounds:
             if sound.get("ipa"):
                 return sound["ipa"]
@@ -141,7 +180,7 @@ class WiktionaryFetcher:
 
     def get_audio_url(self, word: str) -> str:
         data = self.get_word_json(word)
-        sounds = data.get("sounds", [])
+        sounds = data.get(EntryFields.SOUNDS.value, [])
         for sound in sounds:
             if sound.get("ogg_url"):
                 return sound["ogg_url"]
@@ -149,14 +188,14 @@ class WiktionaryFetcher:
 
     def get_etymology(self, word: str) -> str:
         data = self.get_word_json(word)
-        return data.get("etymology_text", "")
+        return data.get(EntryFields.ETYMOLOGY_TEXT.value, "")
 
     # "declension": forms in the declension table
     def get_declension(self, word: str) -> dict[str, list[str]]:
         declensions: dict[str, list[str]] = {}
 
         data = self.get_word_json(word)
-        forms = data.get("forms", [])
+        forms = data.get(EntryFields.FORMS.value, [])
 
         for form in forms:
             if isinstance(form.get("source"), str) and form.get("source").lower() == "declension":

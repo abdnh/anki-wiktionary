@@ -81,8 +81,8 @@ The imported dictionary will be made available for use in the add-on's main dial
             self.mw.taskman.run_on_main(update)
             return not want_cancel
 
-        def on_error(word: str, exc: Exception) -> None:
-            self.errors.append(f'failed to write file of word "{word}": {str(exc)}')
+        def on_error(line: int, exc: Exception) -> None:
+            self.errors.append(f"failed to process line {line}: {str(exc)}")
 
         def on_done(future: Future) -> None:
             self.mw.progress.finish()
