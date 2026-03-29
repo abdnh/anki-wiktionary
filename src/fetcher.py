@@ -106,7 +106,7 @@ class WiktionaryFetcher:
                                 "Error while processing line", filename=filename, dictionary=dictionary, line=line
                             )
                             on_error(count + 1, exc)
-                    if not on_progress(count + 1):
+                    if not on_progress(count):
                         break
                     count += BATCH_SIZE
                     if entries:
