@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import shutil
 import sqlite3
-from enum import Enum
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, Callable
 
@@ -23,22 +23,26 @@ class WordNotFoundError(WiktionaryError):
         return f'"{self.word}" was not found in the dictionary.'
 
 
-class EntryFields(Enum):
-    WORD = "word"
-    RAW_GLOSSES = "raw_glosses"
-    SENSES = "senses"
-    FORMS = "forms"
-    POS = "pos"
-    SOUNDS = "sounds"
-    ETYMOLOGY_TEXT = "etymology_text"
-
-
-EXTRACTED_FIELDS = set(field.value for field in list(EntryFields) if field != EntryFields.WORD)
 BATCH_SIZE = 10000
 
 
+def strip_dict_list_keys(dict_list: list[dict], keep_list: Iterable[str]) -> list[dict]:
+    for item in dict_list:
+        for key in list(item.keys()):
+            if key not in keep_list:
+                item.pop(key)
+    return dict_list
+
+
 def strip_unused_fields(entry: dict[str, Any]) -> dict[str, Any]:
-    return {k: v for k, v in entry.items() if k in EXTRACTED_FIELDS}
+    cleaned_entry = {}
+    senses = strip_dict_list_keys(entry.get("senses", []), ("raw_glosses", "glosses", "examples", "tags"))
+    forms = strip_dict_list_keys(entry.get("forms", []), ("tags", "source", "form"))
+    sounds = strip_dict_list_keys(entry.get("sounds", []), ("ipa", "ogg_url"))
+    pos = entry.get("pos")
+    etymology_text = entry.get("etymology_text")
+    cleaned_entry = {"senses": senses, "forms": forms, "pos": pos, "sounds": sounds, "etymology_text": etymology_text}
+    return cleaned_entry
 
 
 class WiktionaryFetcher:
@@ -70,9 +74,7 @@ class WiktionaryFetcher:
         self._connection.execute("INSERT INTO words(word, data) values(?, ?)", (word, json.dumps(data)))
 
     def _add_words(self, entries: list[dict[str, Any]]) -> None:
-        entries = [
-            {"word": entry[EntryFields.WORD.value], "data": json.dumps(strip_unused_fields(entry))} for entry in entries
-        ]
+        entries = [{"word": entry["word"], "data": json.dumps(strip_unused_fields(entry))} for entry in entries]
         self._connection.executemany("INSERT INTO words(word, data) values(:word, :data)", entries)
 
     @classmethod
@@ -99,7 +101,7 @@ class WiktionaryFetcher:
                                 # Ignore redirects for now
                                 continue
                             # Check word field
-                            entry[EntryFields.WORD.value]
+                            entry["word"]
                             entries.append(entry)
                         except Exception as exc:
                             logger.exception(
@@ -131,12 +133,12 @@ class WiktionaryFetcher:
 
     def get_senses(self, word: str) -> list[str]:
         data = self.get_word_json(word)
-        return ["\n".join(d.get(EntryFields.RAW_GLOSSES.value, d.get("glosses", []))) for d in data.get("senses", [])]
+        return ["\n".join(d.get("raw_glosses", d.get("glosses", []))) for d in data.get("senses", [])]
 
     def get_examples(self, word: str) -> list[str]:
         data = self.get_word_json(word)
         examples = []
-        for sense in data.get(EntryFields.SENSES.value, []):
+        for sense in data.get("senses", []):
             for example in sense.get("examples", []):
                 sent = example["text"]
                 if example.get("english"):
@@ -148,7 +150,7 @@ class WiktionaryFetcher:
         genders = {"feminine", "masculine", "neuter", "common-gender"}
         data = self.get_word_json(word)
         # forms = data.get("senses", []) + data.get("forms", [])
-        senses = data.get(EntryFields.SENSES.value, [])
+        senses = data.get("senses", [])
         # FIXME: do we need to return the form too along with the gender?
         # and can different forms have different genders?
         for form in senses:
@@ -157,7 +159,7 @@ class WiktionaryFetcher:
                     return gender
 
         # Latin words have their genders in "forms"
-        forms = data.get(EntryFields.FORMS.value, [])
+        forms = data.get("forms", [])
         for form in forms:
             for gender in genders:
                 tags = form.get("tags", [])
@@ -168,11 +170,11 @@ class WiktionaryFetcher:
 
     def get_part_of_speech(self, word: str) -> str:
         data = self.get_word_json(word)
-        return data.get(EntryFields.POS, "")
+        return data.get("pos", "")
 
     def get_ipa(self, word: str) -> str:
         data = self.get_word_json(word)
-        sounds = data.get(EntryFields.SOUNDS.value, [])
+        sounds = data.get("sounds", [])
         for sound in sounds:
             if sound.get("ipa"):
                 return sound["ipa"]
@@ -180,7 +182,7 @@ class WiktionaryFetcher:
 
     def get_audio_url(self, word: str) -> str:
         data = self.get_word_json(word)
-        sounds = data.get(EntryFields.SOUNDS.value, [])
+        sounds = data.get("sounds", [])
         for sound in sounds:
             if sound.get("ogg_url"):
                 return sound["ogg_url"]
@@ -188,14 +190,14 @@ class WiktionaryFetcher:
 
     def get_etymology(self, word: str) -> str:
         data = self.get_word_json(word)
-        return data.get(EntryFields.ETYMOLOGY_TEXT.value, "")
+        return data.get("etymology_text", "")
 
     # "declension": forms in the declension table
     def get_declension(self, word: str) -> dict[str, list[str]]:
         declensions: dict[str, list[str]] = {}
 
         data = self.get_word_json(word)
-        forms = data.get(EntryFields.FORMS.value, [])
+        forms = data.get("forms", [])
 
         for form in forms:
             if isinstance(form.get("source"), str) and form.get("source").lower() == "declension":
