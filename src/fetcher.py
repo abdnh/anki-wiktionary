@@ -110,7 +110,7 @@ class WiktionaryFetcher:
                             on_error(count + 1, exc)
                     if not on_progress(count):
                         break
-                    count += BATCH_SIZE
+                    count += len(batch)
                     if entries:
                         fetcher._add_words(entries)
         return count
