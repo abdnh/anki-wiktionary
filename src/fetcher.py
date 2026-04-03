@@ -3,8 +3,12 @@ from __future__ import annotations
 import json
 import shutil
 import sqlite3
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, Callable
+
+from .log import logger
+from .utils import batched
 
 
 class WiktionaryError(Exception):
@@ -17,6 +21,28 @@ class WordNotFoundError(WiktionaryError):
 
     def __str__(self) -> str:
         return f'"{self.word}" was not found in the dictionary.'
+
+
+BATCH_SIZE = 10000
+
+
+def strip_dict_list_keys(dict_list: list[dict], keep_list: Iterable[str]) -> list[dict]:
+    for item in dict_list:
+        for key in list(item.keys()):
+            if key not in keep_list:
+                item.pop(key)
+    return dict_list
+
+
+def strip_unused_fields(entry: dict[str, Any]) -> dict[str, Any]:
+    cleaned_entry = {}
+    senses = strip_dict_list_keys(entry.get("senses", []), ("raw_glosses", "glosses", "examples", "tags"))
+    forms = strip_dict_list_keys(entry.get("forms", []), ("tags", "source", "form"))
+    sounds = strip_dict_list_keys(entry.get("sounds", []), ("ipa", "ogg_url"))
+    pos = entry.get("pos", "")
+    etymology_text = entry.get("etymology_text", "")
+    cleaned_entry = {"senses": senses, "forms": forms, "pos": pos, "sounds": sounds, "etymology_text": etymology_text}
+    return cleaned_entry
 
 
 class WiktionaryFetcher:
@@ -34,6 +60,7 @@ class WiktionaryFetcher:
         )
 
     def close(self) -> None:
+        self._connection.commit()
         self._connection.close()
 
     def __enter__(self) -> WiktionaryFetcher:
@@ -42,8 +69,13 @@ class WiktionaryFetcher:
     def __exit__(self, exc_type: Any, exc_value: Any, exc_tb: Any) -> None:
         self.close()
 
-    def _add_word(self, word: str, data: str) -> None:
-        self._connection.execute("INSERT INTO words(word, data) values(?, ?)", (word, data))
+    def _add_word(self, word: str, data: dict[str, Any]) -> None:
+        data = strip_unused_fields(data)
+        self._connection.execute("INSERT INTO words(word, data) values(?, ?)", (word, json.dumps(data)))
+
+    def _add_words(self, entries: list[dict[str, Any]]) -> None:
+        entries = [{"word": entry["word"], "data": json.dumps(strip_unused_fields(entry))} for entry in entries]
+        self._connection.executemany("INSERT INTO words(word, data) values(:word, :data)", entries)
 
     @classmethod
     def import_kaikki_dict(
@@ -51,35 +83,44 @@ class WiktionaryFetcher:
         filename: str | Path,
         dictionary: str,
         on_progress: Callable[[int], bool],
-        on_error: Callable[[str, Exception], None],
+        on_error: Callable[[int, Exception], None],
         base_dir: Path,
     ) -> int:
-        """Dumps a JSON file downloaded from https://kaikki.org/dictionary/{lang}/
+        """Dumps a JSON file downloaded from https://kaikki.org/dictionary/rawdata.html
         to a SQLite database"""
         base_dir.mkdir(exist_ok=True)
         count = 0
         with open(filename, encoding="utf-8") as file:
             with WiktionaryFetcher(dictionary, base_dir) as fetcher:
-                for i, line in enumerate(file):
-                    try:
-                        entry = json.loads(line)
-                        word = entry["word"]
-                        fetcher._add_word(word, line)
-                        count += 1
-                    except Exception as exc:
-                        print(f"{exc=}")
-                        on_error(word, exc)
-                    if i % 50 == 0:
-                        if not on_progress(i + 1):
-                            break
-                fetcher._connection.commit()
+                for batch in batched(file, BATCH_SIZE):
+                    entries: list[dict[str, Any]] = []
+                    for line in batch:
+                        try:
+                            entry = json.loads(line)
+                            if "redirect" in entry:
+                                # Ignore redirects for now
+                                continue
+                            # Check word field
+                            entry["word"]
+                            entries.append(entry)
+                        except Exception as exc:
+                            logger.exception(
+                                "Error while processing line", filename=filename, dictionary=dictionary, line=line
+                            )
+                            on_error(count + 1, exc)
+                    if not on_progress(count):
+                        break
+                    count += len(batch)
+                    if entries:
+                        fetcher._add_words(entries)
         return count
 
     @classmethod
     def migrate_dict_to_sqlite(cls, dictionary_dir: Path, new_dir: Path) -> None:
         with WiktionaryFetcher(dictionary_dir.name, new_dir) as fetcher:
-            for file in dictionary_dir.iterdir():
-                fetcher._add_word(file.stem, file.read_text(encoding="utf-8"))
+            for path in dictionary_dir.iterdir():
+                with open(path, encoding="utf-8") as file:
+                    fetcher._add_word(path.stem, json.load(file))
             fetcher._connection.commit()
         shutil.rmtree(dictionary_dir)
 
@@ -129,7 +170,7 @@ class WiktionaryFetcher:
 
     def get_part_of_speech(self, word: str) -> str:
         data = self.get_word_json(word)
-        return data.get("pos", "")
+        return data.get("pos") or ""
 
     def get_ipa(self, word: str) -> str:
         data = self.get_word_json(word)
@@ -149,7 +190,7 @@ class WiktionaryFetcher:
 
     def get_etymology(self, word: str) -> str:
         data = self.get_word_json(word)
-        return data.get("etymology_text", "")
+        return data.get("etymology_text") or ""
 
     # "declension": forms in the declension table
     def get_declension(self, word: str) -> dict[str, list[str]]:

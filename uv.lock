@@ -8,48 +8,6 @@ resolution-markers = [
 ]
 
 [[package]]
-name = "wiktionary"
-source = { editable = "." }
-dependencies = [
-    { name = "ankiutils" },
-    { name = "protobuf" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "ankiscripts", extra = ["forms", "template"] },
-    { name = "ankiutils" },
-    { name = "aqt", extra = ["qt"] },
-    { name = "mypy" },
-    { name = "prek" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "ruff" },
-    { name = "sentry-sdk" },
-    { name = "types-protobuf" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "ankiutils", git = "https://github.com/abdnh/ankiutils?branch=master" },
-    { name = "protobuf" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "ankiscripts", extras = ["forms", "template"], git = "https://github.com/abdnh/ankiscripts?branch=master" },
-    { name = "ankiutils", git = "https://github.com/abdnh/ankiutils?branch=master" },
-    { name = "aqt", extras = ["qt"] },
-    { name = "mypy", specifier = ">=1.15.0" },
-    { name = "prek", specifier = ">=0.2.30" },
-    { name = "pytest", specifier = ">=8.3.5" },
-    { name = "pytest-cov", specifier = ">=6.1.1" },
-    { name = "ruff", specifier = ">=0.11.7" },
-    { name = "sentry-sdk", specifier = ">=2.35.0" },
-    { name = "types-protobuf" },
-]
-
-[[package]]
 name = "anki"
 version = "25.9.2"
 source = { registry = "https://pypi.org/simple" }
@@ -115,8 +73,8 @@ template = [
 
 [[package]]
 name = "ankiutils"
-version = "0.1.dev125+gf1cdd3fcf"
-source = { git = "https://github.com/abdnh/ankiutils?branch=master#f1cdd3fcf1b3d3b0b7deb29386378b85e90f23de" }
+version = "0.1.dev126+gabe56c402"
+source = { git = "https://github.com/abdnh/ankiutils?branch=master#abe56c40226be61d3b6a6bfeba333d0c73957216" }
 dependencies = [
     { name = "sentry-sdk" },
     { name = "structlog" },
@@ -1927,6 +1885,48 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/61/f1/ee81806690a87dab5f5653c1f146c92bc066d7f4cebc603ef88eb9e13957/werkzeug-3.1.6.tar.gz", hash = "sha256:210c6bede5a420a913956b4791a7f4d6843a43b6fcee4dfa08a65e93007d0d25", size = 864736, upload-time = "2026-02-19T15:17:18.884Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4d/ec/d58832f89ede95652fd01f4f24236af7d32b70cab2196dfcc2d2fd13c5c2/werkzeug-3.1.6-py3-none-any.whl", hash = "sha256:7ddf3357bb9564e407607f988f683d72038551200c704012bb9a4c523d42f131", size = 225166, upload-time = "2026-02-19T15:17:17.475Z" },
+]
+
+[[package]]
+name = "wiktionary"
+source = { editable = "." }
+dependencies = [
+    { name = "ankiutils" },
+    { name = "protobuf" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "ankiscripts", extra = ["forms", "template"] },
+    { name = "ankiutils" },
+    { name = "aqt", extra = ["qt"] },
+    { name = "mypy" },
+    { name = "prek" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "ruff" },
+    { name = "sentry-sdk" },
+    { name = "types-protobuf" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "ankiutils", git = "https://github.com/abdnh/ankiutils?branch=master" },
+    { name = "protobuf" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "ankiscripts", extras = ["forms", "template"], git = "https://github.com/abdnh/ankiscripts?branch=master" },
+    { name = "ankiutils", git = "https://github.com/abdnh/ankiutils?branch=master" },
+    { name = "aqt", extras = ["qt"] },
+    { name = "mypy", specifier = ">=1.15.0" },
+    { name = "prek", specifier = ">=0.2.30" },
+    { name = "pytest", specifier = ">=8.3.5" },
+    { name = "pytest-cov", specifier = ">=6.1.1" },
+    { name = "ruff", specifier = ">=0.11.7" },
+    { name = "sentry-sdk", specifier = ">=2.35.0" },
+    { name = "types-protobuf" },
 ]
 
 [[package]]

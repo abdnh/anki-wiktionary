@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Generator, Iterable
 from pathlib import Path
+from typing import TypeVar
 
 from .consts import consts
 
@@ -15,3 +17,18 @@ def get_dicts() -> list[Path]:
 
 def get_dict_names() -> list[str]:
     return [p.stem for p in get_dicts()]
+
+
+T = TypeVar("T")
+
+
+def batched(iterable: Iterable[T], n: int) -> Generator[list[T], None, None]:
+    batch: list[T] = []
+    for item in iterable:
+        if len(batch) < n:
+            batch.append(item)
+        else:
+            yield batch
+            batch.clear()
+    if batch:
+        yield batch
