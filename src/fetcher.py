@@ -39,8 +39,8 @@ def strip_unused_fields(entry: dict[str, Any]) -> dict[str, Any]:
     senses = strip_dict_list_keys(entry.get("senses", []), ("raw_glosses", "glosses", "examples", "tags"))
     forms = strip_dict_list_keys(entry.get("forms", []), ("tags", "source", "form"))
     sounds = strip_dict_list_keys(entry.get("sounds", []), ("ipa", "ogg_url"))
-    pos = entry.get("pos")
-    etymology_text = entry.get("etymology_text")
+    pos = entry.get("pos", "")
+    etymology_text = entry.get("etymology_text", "")
     cleaned_entry = {"senses": senses, "forms": forms, "pos": pos, "sounds": sounds, "etymology_text": etymology_text}
     return cleaned_entry
 
@@ -170,7 +170,7 @@ class WiktionaryFetcher:
 
     def get_part_of_speech(self, word: str) -> str:
         data = self.get_word_json(word)
-        return data.get("pos", "")
+        return data.get("pos") or ""
 
     def get_ipa(self, word: str) -> str:
         data = self.get_word_json(word)
@@ -190,7 +190,7 @@ class WiktionaryFetcher:
 
     def get_etymology(self, word: str) -> str:
         data = self.get_word_json(word)
-        return data.get("etymology_text", "")
+        return data.get("etymology_text") or ""
 
     # "declension": forms in the declension table
     def get_declension(self, word: str) -> dict[str, list[str]]:
