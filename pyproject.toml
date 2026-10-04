@@ -14,7 +14,7 @@ classifiers = [
 license = "AGPL-3.0-or-later"
 dynamic = ["version"]
 dependencies = [
-    "ankiutils",
+    "ankiutils[sentry]",
     "protobuf",
 ]
 
@@ -28,7 +28,6 @@ ankiutils = { git = "https://github.com/abdnh/ankiutils", branch = "master" }
 [dependency-groups]
 dev = [
     "ankiscripts[forms,template]",
-    "ankiutils",
     "aqt[qt]",
     "mypy>=1.15.0",
     "prek>=0.2.30",

@@ -49,7 +49,7 @@ wheels = [
 [[package]]
 name = "ankiscripts"
 version = "0.0.0"
-source = { git = "https://github.com/abdnh/ankiscripts?branch=master#14a06258d7ef3044fbf2ef812fea344e2a222687" }
+source = { git = "https://github.com/abdnh/ankiscripts?branch=master#a2281c879ba1a2a6b0814abfcd0baa5fdcc466bc" }
 dependencies = [
     { name = "jsonschema" },
     { name = "libcst" },
@@ -74,12 +74,16 @@ template = [
 
 [[package]]
 name = "ankiutils"
-version = "0.1.dev126+gabe56c402"
-source = { git = "https://github.com/abdnh/ankiutils?branch=master#abe56c40226be61d3b6a6bfeba333d0c73957216" }
+version = "0.1.dev133+gcf37eeea9"
+source = { git = "https://github.com/abdnh/ankiutils?branch=master#cf37eeea92adcb59fcaf2883bf2c9f09eecacb1b" }
 dependencies = [
-    { name = "sentry-sdk" },
     { name = "structlog" },
     { name = "typing-extensions" },
+]
+
+[package.optional-dependencies]
+sentry = [
+    { name = "sentry-sdk" },
 ]
 
 [[package]]
@@ -1980,14 +1984,13 @@ wheels = [
 name = "wiktionary"
 source = { editable = "." }
 dependencies = [
-    { name = "ankiutils" },
+    { name = "ankiutils", extra = ["sentry"] },
     { name = "protobuf" },
 ]
 
 [package.dev-dependencies]
 dev = [
     { name = "ankiscripts", extra = ["forms", "template"] },
-    { name = "ankiutils" },
     { name = "aqt", extra = ["qt"] },
     { name = "mypy" },
     { name = "prek" },
@@ -2000,14 +2003,13 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "ankiutils", git = "https://github.com/abdnh/ankiutils?branch=master" },
+    { name = "ankiutils", extras = ["sentry"], git = "https://github.com/abdnh/ankiutils?branch=master" },
     { name = "protobuf" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "ankiscripts", extras = ["forms", "template"], git = "https://github.com/abdnh/ankiscripts?branch=master" },
-    { name = "ankiutils", git = "https://github.com/abdnh/ankiutils?branch=master" },
     { name = "aqt", extras = ["qt"] },
     { name = "mypy", specifier = ">=1.15.0" },
     { name = "prek", specifier = ">=0.2.30" },
