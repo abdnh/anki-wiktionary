@@ -1,7 +1,7 @@
 {
     "ankiweb_id": "2087444887",
     "homepage": "https://github.com/abdnh/anki-wiktionary",
-    "min_point_version": 50,
+    "min_point_version": 260500,
     "name": "Wiktionary",
     "package": "wiktionary",
     "support_channels": {

@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "wiktionary"
 authors = [{ name = "Abdo", email = "abdo@abdnh.net" }]
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",

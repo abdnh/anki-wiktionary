@@ -3,9 +3,9 @@ from __future__ import annotations
 import json
 import shutil
 import sqlite3
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, TextIO
+from typing import TYPE_CHECKING, Any, TextIO
 
 from .log import logger
 from .utils import batched

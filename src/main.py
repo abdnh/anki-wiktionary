@@ -15,6 +15,8 @@ from .patches import patch_certifi
 
 patch_certifi()
 
+from aqt.editor import NewEditor
+
 # ruff: noqa: E402
 from .backend.server import init_server
 from .consts import consts
@@ -66,7 +68,12 @@ def on_browser_menus_did_init(browser: Browser) -> None:
     browser.form.menuEdit.addAction(action)
 
 
-def on_editor_button_clicked(editor: Editor) -> None:
+def on_editor_button_clicked(editor: Editor | NewEditor) -> None:
+    if isinstance(editor, NewEditor):
+        showWarning(
+            "This add-on does not work with the experimental editor yet.", parent=editor.parentWindow, title=consts.name
+        )
+        return
     dialog = WiktionaryFetcherDialog(editor.mw, editor.parentWindow, [editor.note])
     if dialog.exec():
         if dialog.errors:
@@ -78,7 +85,7 @@ def on_editor_button_clicked(editor: Editor) -> None:
         editor.loadNoteKeepingFocus()
 
 
-def on_editor_did_init_buttons(buttons: list[str], editor: Editor) -> None:
+def on_editor_did_init_buttons(buttons: list[str], editor: Editor | NewEditor) -> None:
     config = mw.addonManager.getConfig(__name__)
     shortcut = QKeySequence(config["editor_shortcut"]).toString(QKeySequence.SequenceFormat.NativeText)
     button = editor.addButton(
