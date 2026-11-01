@@ -45,7 +45,7 @@
                 available for hire. Get in touch via <a
                     href="mailto:abdo@abdnh.net"
                     target="_blank"
-                >email</a> or the Upwork link below.
+                >email</a>.
             </p>
             <h2>Support me</h2>
             <p>Consider supporting me if you like my work:</p>
@@ -74,16 +74,6 @@
             ><img
                     src="/buymeacoffee.png"
                     alt="Buy Me A Coffee"
-                    class="not-prose"
-                ></a>
-            <p>I'm also available for freelance add-on development:</p>
-            <a
-                href="https://www.upwork.com/freelancers/~01d764ac58a0eccc5c"
-                target="_blank"
-                aria-label="Upwork link"
-            ><img
-                    src="/upwork.png"
-                    alt="Upwork"
                     class="not-prose"
                 ></a>
         </main>
