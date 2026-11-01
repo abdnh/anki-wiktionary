@@ -228,7 +228,7 @@ class WiktionaryFetcher:
                 for useless_tag in useless_tags:
                     if useless_tag in tags:
                         break
-                else:                    
+                else:
                     # append {"tags": "form"} to declensions / conjugations
                     key = ", ".join(tags)
                     value = form.get("form")
