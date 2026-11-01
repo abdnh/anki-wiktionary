@@ -5,10 +5,13 @@ import shutil
 import sqlite3
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, TextIO
 
 from .log import logger
 from .utils import batched
+
+if TYPE_CHECKING:
+    from gzip import GzipFile
 
 
 class WiktionaryError(Exception):
@@ -21,6 +24,11 @@ class WordNotFoundError(WiktionaryError):
 
     def __str__(self) -> str:
         return f'"{self.word}" was not found in the dictionary.'
+
+
+class GzipNotAvailableError(WiktionaryError):
+    def __init__(self, import_error: ImportError):
+        super().__init__(f"Importing of .gz files is not supported on your platform: {import_error}")
 
 
 BATCH_SIZE = 10000
@@ -90,7 +98,19 @@ class WiktionaryFetcher:
         to a SQLite database"""
         base_dir.mkdir(exist_ok=True)
         count = 0
-        with open(filename, encoding="utf-8") as file:
+        filename = Path(filename)
+        file: TextIO | GzipFile
+        if filename.suffix == ".gz":
+            try:
+                import gzip  # noqa: PLC0415
+
+                file = gzip.open(filename, "rt")
+            except ImportError as exc:
+                on_error(0, GzipNotAvailableError(exc))
+                return 0
+        else:
+            file = open(filename, encoding="utf-8")
+        with file:
             with WiktionaryFetcher(dictionary, base_dir) as fetcher:
                 for batch in batched(file, BATCH_SIZE):
                     entries: list[dict[str, Any]] = []
