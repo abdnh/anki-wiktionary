@@ -212,29 +212,39 @@ class WiktionaryFetcher:
         data = self.get_word_json(word)
         return data.get("etymology_text") or ""
 
-    # "declension": forms in the declension table
-    def get_declension(self, word: str) -> dict[str, list[str]]:
-        declensions: dict[str, list[str]] = {}
+    def get_form(self, word: str, grammatical_form: str) -> dict[str, set[str]]:
+        outputs: dict[str, set[str]] = {}
 
         data = self.get_word_json(word)
         forms = data.get("forms", [])
 
         for form in forms:
-            if isinstance(form.get("source"), str) and form.get("source").lower() == "declension":
+            if isinstance(form.get("source"), str) and form.get("source").lower() == grammatical_form:
                 tags = form.get("tags", [])
-                # "table-tags" and "inflection-template" seems like useless stuffs
-                useless_tags = ["table-tags", "inflection-template"]
+
+                # "inflection-template" seems like useless stuffs
+                useless_tags = ["inflection-template"]
+
                 for useless_tag in useless_tags:
                     if useless_tag in tags:
                         break
-
-                else:
-                    # append {"tags": "form"} to `declensions`
+                else:                    
+                    # append {"tags": "form"} to declensions / conjugations
                     key = ", ".join(tags)
                     value = form.get("form")
-                    declensions.update({key: declensions.get(key, []) + [value]})
+                    # "table-tags" can have useful info, e.g., strong verb / weak noun, but "no-table-tags" is useless
+                    if "table-tags" in tags and value == "no-table-tags":
+                        continue
+                    outputs.update({key: outputs.get(key, set()) | {value}})
+        return outputs
 
-        return declensions
+    # "declension": forms in the declension table
+    def get_declension(self, word: str) -> dict[str, set[str]]:
+        return self.get_form(word, "declension")
+
+    # "conjugation": forms in the conjugation table
+    def get_conjugation(self, word: str) -> dict[str, set[str]]:
+        return self.get_form(word, "conjugation")
 
 
 if __name__ == "__main__":

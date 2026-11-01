@@ -55,6 +55,7 @@ class WiktionaryFetcherDialog(Dialog):
             self.form.audioFieldComboBox,
             self.form.etymologyFieldComboBox,
             self.form.declensionFieldComboBox,
+            self.form.conjugationFieldComboBox,
         ]
         self.setWindowTitle(consts.name)
         self.form.icon.setPixmap(QPixmap(os.path.join(consts.icons_dir, "enwiktionary-1.5x.png")))
@@ -103,6 +104,7 @@ class WiktionaryFetcherDialog(Dialog):
         "audio_field",
         "etymology_field",
         "declension_field",
+        "conjugation_field",
     )
 
     def set_last_used_settings(self) -> None:
@@ -157,6 +159,7 @@ class WiktionaryFetcherDialog(Dialog):
         audio_field_i = self.form.audioFieldComboBox.currentIndex()
         etymology_field_i = self.form.etymologyFieldComboBox.currentIndex()
         declension_field_i = self.form.declensionFieldComboBox.currentIndex()
+        conjugation_field_i = self.form.conjugationFieldComboBox.currentIndex()
         field_tuples = (
             (definition_field_i, self._get_definitions),
             (example_field_i, self._get_examples),
@@ -166,6 +169,7 @@ class WiktionaryFetcherDialog(Dialog):
             (audio_field_i, self._get_audio),
             (etymology_field_i, self._get_etymology),
             (declension_field_i, self._get_declension),
+            (conjugation_field_i, self._get_conjugation),
         )
 
         def on_success(ret: Any) -> None:
@@ -293,12 +297,21 @@ class WiktionaryFetcherDialog(Dialog):
     def _get_etymology(self, fetcher: WiktionaryFetcher, word: str) -> str:
         return fetcher.get_etymology(word)
 
-    def _get_declension(self, fetcher: WiktionaryFetcher, word: str) -> str:
-        declensions = fetcher.get_declension(word)
-        if len(declensions) == 0:
+    def _get_form(self, fetcher: WiktionaryFetcher, word: str, form: str) -> str:
+        if form == "declension":
+            forms = fetcher.get_declension(word)
+        elif form == "conjugation":
+            forms = fetcher.get_conjugation(word)
+        if len(forms) == 0:
             return ""
         formatted = "<ul>"
-        for key, value in declensions.items():
+        for key, value in forms.items():
             formatted += f"<li>{key}: {', '.join(value)}</li>"
         formatted += "</ul>"
         return formatted
+
+    def _get_declension(self, fetcher: WiktionaryFetcher, word: str) -> str:
+        return self._get_form(fetcher, word, "declension")
+
+    def _get_conjugation(self, fetcher: WiktionaryFetcher, word: str) -> str:
+        return self._get_form(fetcher, word, "conjugation")
